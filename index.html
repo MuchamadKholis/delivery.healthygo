@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Kurir Terpadu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans" x-data="app()">
+
+    <!-- ================= HALAMAN LOGIN ================= -->
+    <template x-if="!isLoggedIn">
+        <div class="min-h-screen flex items-center justify-center bg-blue-600 px-4">
+            <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">KurirApp Login</h2>
+                
+                <div class="flex border-b mb-6">
+                    <button @click="loginRole = 'admin'; loginError = ''" :class="loginRole === 'admin' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-gray-500'" class="w-1/2 pb-2 border-b-2 text-sm text-center">Admin</button>
+                    <button @click="loginRole = 'kurir'; loginError = ''" :class="loginRole === 'kurir' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-gray-500'" class="w-1/2 pb-2 border-b-2 text-sm text-center">Kurir / Pegawai</button>
+                </div>
+
+                <form @submit.prevent="handleLogin" class="space-y-4">
+                    <template x-if="loginRole === 'admin'">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username Admin</label>
+                            <input type="text" x-model="loginInput.username" placeholder="Masukkan username" required class="w-full border rounded px-3 py-2 text-sm">
+                            <label class="block text-sm font-medium text-gray-700 mt-3 mb-1">Password</label>
+                            <input type="password" x-model="loginInput.password" placeholder="Masukkan password" required class="w-full border rounded px-3 py-2 text-sm">
+                        </div>
+                    </template>
+
+                    <template x-if="loginRole === 'kurir'">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username Anda</label>
+                            <input type="text" x-model="loginInput.kurirUsername" placeholder="Masukkan username" required class="w-full border rounded px-3 py-2 text-sm mb-3">
+                            
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" x-model="loginInput.kurirPassword" placeholder="Masukkan password" required class="w-full border rounded px-3 py-2 text-sm">
+                        </div>
+                    </template>
+
+                    <p class="text-xs text-red-500 font-semibold" x-text="loginError" x-show="loginError"></p>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700 mt-2">Masuk (Login)</button>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- ================= HALAMAN UTAMA SETELAH LOGIN ================= -->
+    <template x-if="isLoggedIn">
+        <div>
+            <!-- Navbar -->
+            <nav class="bg-blue-600 text-white shadow-lg">
+                <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                    <h1 class="text-xl font-bold">KurirApp v1.0</h1>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm bg-blue-700 px-3 py-1 rounded-full" x-text="role === 'admin' ? 'Administrator' : currentUser.name + ' (' + currentUser.kontrak + ' - ' + currentUser.jabatan + ')'"></span>
+                        <button @click="logout()" class="bg-red-500 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-red-600">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
+
+                <!-- Sidebar / Menu -->
+                <div class="w-full md:w-1/4 bg-white p-4 rounded-lg shadow h-fit">
+                    <h2 class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">Menu Navigasi</h2>
+                    <ul class="space-y-2 text-sm">
+                        <!-- Menu Admin -->
+                        <template x-if="role === 'admin'">
+                            <div class="space-y-1">
+                                <li><button @click="activeTab = 'admin-kurir'" :class="activeTab === 'admin-kurir' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">👥 Kelola Pegawai</button></li>
+                                <li><button @click="activeTab = 'admin-jabatan'" :class="activeTab === 'admin-jabatan' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🏷️ Master Jabatan</button></li>
+                                <li><button @click="activeTab = 'admin-estafet-area'" :class="activeTab === 'admin-estafet-area' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📍 Master Estafet Area</button></li>
+                                <hr class="my-2">
+                                <p class="text-xs text-gray-400 px-3 uppercase tracking-wider font-bold">Rekapitulasi (Approval)</p>
+                                <li><button @click="activeTab = 'rekap-absen'" :class="activeTab === 'rekap-absen' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📍 Absensi (Harian)</button></li>
+                                <li><button @click="activeTab = 'rekap-parkir'" :class="activeTab === 'rekap-parkir' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🅿️ Parkir</button></li>
+                                <li><button @click="activeTab = 'rekap-gedung'" :class="activeTab === 'rekap-gedung' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🏢 Gedung</button></li>
+                                <li><button @click="activeTab = 'rekap-estafet'" :class="activeTab === 'rekap-estafet' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🔄 Estafet</button></li>
+                                <li><button @click="activeTab = 'rekap-jarak'" :class="activeTab === 'rekap-jarak' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📏 Jarak</button></li>
+                                <li><button @click="activeTab = 'rekap-pickup'" :class="activeTab === 'rekap-pickup' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📦 Ambil Barang</button></li>
+                            </div>
+                        </template>
+                        <!-- Menu Kurir -->
+                        <template x-if="role === 'kurir'">
+                            <div class="space-y-1">
+                                <li><button @click="activeTab = 'kurir-absen'" :class="activeTab === 'kurir-absen' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📍 Absensi Harian (Realtime)</button></li>
+                                <hr class="my-2">
+                                <p class="text-xs text-gray-400 px-3 uppercase tracking-wider font-bold">Tugas & Klaim</p>
+                                <li><button @click="activeTab = 'kurir-parkir'" :class="activeTab === 'kurir-parkir' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🅿️ Parkir & Reimburse</button></li>
+                                <li><button @click="activeTab = 'kurir-gedung'" :class="activeTab === 'kurir-gedung' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🏢 Gedung</button></li>
+                                <li><button @click="activeTab = 'kurir-estafet'" :class="activeTab === 'kurir-estafet' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🔄 Estafet</button></li>
+                                <li><button @click="activeTab = 'kurir-jarak'" :class="activeTab === 'kurir-jarak' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📏 Jarak</button></li>
+                                <li><button @click="activeTab = 'kurir-pickup'" :class="activeTab === 'kurir-pickup' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📦 Ambil Barang</button></li>
+                            </div>
+                        </template>
+                    </ul>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="w-full md:w-3/4">
+
+                    <!-- Loading Indicator Modal / Banner -->
+                    <div x-show="isLoading" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 rounded shadow text-sm font-semibold flex items-center justify-between">
+                        <span>⏳ Sedang mengirim data dan mengunggah foto ke Google Drive... Mohon tunggu sebentar.</span>
+                    </div>
+
+                    <!-- ADMIN: KELOLA PEGAWAI -->
+                    <div x-show="role === 'admin' && activeTab === 'admin-kurir'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800" x-text="kurirForm.editIndex === null ? 'Tambah Pegawai Baru' : 'Edit Data Pegawai'"></h2>
+                            <form @submit.prevent="saveKurir" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                                    <input type="text" x-model="kurirForm.name" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Username Login</label>
+                                    <input type="text" x-model="kurirForm.username" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" x-text="kurirForm.editIndex === null ? 'Password' : 'Password Baru (Opsional)'"></label>
+                                    <input type="password" x-model="kurirForm.password" :required="kurirForm.editIndex === null" class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kontrak</label>
+                                    <select x-model="kurirForm.kontrak" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Full Time">Full Time</option>
+                                        <option value="Part Time">Part Time</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
+                                    <select x-model="kurirForm.jabatan" class="w-full border rounded px-3 py-2 text-sm">
+                                        <template x-for="jab in jabatanList" :key="jab">
+                                            <option :value="jab" x-text="jab"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="flex items-end gap-2">
+                                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700" x-text="kurirForm.editIndex === null ? 'Simpan' : 'Update'"></button>
+                                    <button type="button" @click="cancelEditKurir" x-show="kurirForm.editIndex !== null" class="bg-gray-400 text-white px-3 py-2 rounded text-sm font-semibold hover:bg-gray-500">Batal</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Daftar Pegawai Terdaftar</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Nama & Username</th>
+                                            <th class="p-3">Jabatan</th>
+                                            <th class="p-3">Kontrak</th>
+                                            <th class="p-3">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="(k, index) in kurirList" :key="index">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3">
+                                                    <div class="font-medium" x-text="k.name"></div>
+                                                    <div class="text-xs text-gray-500" x-text="'Username: ' + k.username"></div>
+                                                </td>
+                                                <td class="p-3"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-semibold" x-text="k.jabatan"></span></td>
+                                                <td class="p-3">
+                                                    <span :class="k.kontrak === 'Full Time' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'" class="px-2 py-1 rounded text-xs font-semibold" x-text="k.kontrak"></span>
+                                                </td>
+                                                <td class="p-3 flex space-x-2">
+                                                    <button @click="editKurir(index)" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-blue-600">Edit</button>
+                                                    <button @click="deleteKurir(index)" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-red-600">Hapus</button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: MASTER JABATAN -->
+                    <div x-show="role === 'admin' && activeTab === 'admin-jabatan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Kelola Master Jabatan</h2>
+                            <form @submit.prevent="saveJabatan" class="flex gap-4 mb-6 pb-6 border-b">
+                                <input type="text" x-model="jabatanForm.name" placeholder="Nama Jabatan (Contoh: Supervisor)" required class="flex-1 border rounded px-3 py-2 text-sm">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded text-sm font-semibold hover:bg-blue-700" x-text="jabatanForm.editIndex === null ? 'Tambah' : 'Update'"></button>
+                                <button type="button" @click="cancelEditJabatan" x-show="jabatanForm.editIndex !== null" class="bg-gray-400 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-gray-500">Batal</button>
+                            </form>
+
+                            <h3 class="font-semibold text-gray-700 mb-3">Daftar Jabatan</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3 w-16">No</th>
+                                            <th class="p-3">Nama Jabatan</th>
+                                            <th class="p-3">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="(jab, index) in jabatanList" :key="index">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="index + 1"></td>
+                                                <td class="p-3 font-medium" x-text="jab"></td>
+                                                <td class="p-3 flex space-x-2">
+                                                    <button @click="editJabatan(index)" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-blue-600">Edit</button>
+                                                    <button @click="deleteJabatan(index)" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-red-600">Hapus</button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: MASTER ESTAFET AREA -->
+                    <div x-show="role === 'admin' && activeTab === 'admin-estafet-area'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Kelola Master Estafet Area</h2>
+                            <form @submit.prevent="saveEstafetArea" class="flex gap-4 mb-6 pb-6 border-b">
+                                <input type="text" x-model="estafetAreaForm.name" placeholder="Nama Area Estafet (Contoh: Zona Selatan)" required class="flex-1 border rounded px-3 py-2 text-sm">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded text-sm font-semibold hover:bg-blue-700" x-text="estafetAreaForm.editIndex === null ? 'Tambah' : 'Update'"></button>
+                                <button type="button" @click="cancelEditEstafetArea" x-show="estafetAreaForm.editIndex !== null" class="bg-gray-400 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-gray-500">Batal</button>
+                            </form>
+
+                            <h3 class="font-semibold text-gray-700 mb-3">Daftar Area Estafet</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3 w-16">No</th>
+                                            <th class="p-3">Nama Area Estafet</th>
+                                            <th class="p-3">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="(area, index) in estafetAreaList" :key="index">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="index + 1"></td>
+                                                <td class="p-3 font-medium" x-text="area"></td>
+                                                <td class="p-3 flex space-x-2">
+                                                    <button @click="editEstafetArea(index)" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-blue-600">Edit</button>
+                                                    <button @click="deleteEstafetArea(index)" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-red-600">Hapus</button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: REKAPITULASI ABSENSI -->
+                    <div x-show="role === 'admin' && activeTab === 'rekap-absen'" class="bg-white p-6 rounded-lg shadow space-y-4">
+                        <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Absensi Harian (Datang & Pulang)</h2>
+                        <!-- Filter Bar -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-50 p-4 rounded border text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="date" x-model="filters.absen.tanggal" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Kontrak</label>
+                                <select x-model="filters.absen.kontrak" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Jabatan</label>
+                                <select x-model="filters.absen.jabatan" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Jabatan</option>
+                                    <template x-for="jab in jabatanList" :key="jab"><option :value="jab" x-text="jab"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Status</label>
+                                <select x-model="filters.absen.status" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Partial">Partial</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Nama</label>
+                                <input type="text" x-model="filters.absen.nama" placeholder="Cari nama..." class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Absen Datang</th>
+                                        <th class="p-3">Foto Datang</th>
+                                        <th class="p-3">Absen Pulang</th>
+                                        <th class="p-3">Foto Pulang</th>
+                                        <th class="p-3">Total Jam Kerja</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Nilai</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="rec in filteredAttendance" :key="rec.key">
+                                        <tr class="border-b hover:bg-gray-50 align-middle">
+                                            <td class="p-3 font-semibold text-gray-600" x-text="rec.date"></td>
+                                            <td class="p-3 font-medium" x-text="rec.name"></td>
+                                            <td class="p-3" x-text="rec.kontrak"></td>
+                                            <td class="p-3" x-text="rec.jabatan"></td>
+                                            <td class="p-3 text-xs text-blue-600 font-medium" x-text="rec.timeDatang || '-'"></td>
+                                            <td class="p-3">
+                                                <template x-if="rec.photoDatang"><img :src="rec.photoDatang" class="w-12 h-12 object-cover rounded border cursor-pointer hover:scale-150 transition" @click="window.open(rec.photoDatang)"></template>
+                                                <template x-if="!rec.photoDatang"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3 text-xs text-blue-600 font-medium" x-text="rec.timePulang || '-'"></td>
+                                            <td class="p-3">
+                                                <template x-if="rec.photoPulang"><img :src="rec.photoPulang" class="w-12 h-12 object-cover rounded border cursor-pointer hover:scale-150 transition" @click="window.open(rec.photoPulang)"></template>
+                                                <template x-if="!rec.photoPulang"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3 font-semibold text-gray-700" x-text="rec.totalJam"></td>
+                                            <td class="p-3">
+                                                <span :class="{
+                                                    'bg-green-100 text-green-800': rec.status === 'Approved',
+                                                    'bg-blue-100 text-blue-800': rec.status === 'Partial',
+                                                    'bg-red-100 text-red-800': rec.status === 'Rejected',
+                                                    'bg-yellow-100 text-yellow-800': rec.status === 'Pending'
+                                                }" class="px-2 py-1 rounded text-xs font-semibold" x-text="rec.status"></span>
+                                            </td>
+                                            <td class="p-3 font-bold" x-text="rec.nilai"></td>
+                                            <td class="p-3 space-x-1 whitespace-nowrap">
+                                                <button @click="updateDailyApproval(rec, 'Approved', 1)" class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-green-700">Approve (1)</button>
+                                                <button @click="updateDailyApproval(rec, 'Partial', 0.5)" class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-blue-700">Partial (0.5)</button>
+                                                <button @click="updateDailyApproval(rec, 'Rejected', 0)" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-red-700">Reject (0)</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredAttendance.length === 0">
+                                        <tr><td colspan="12" class="p-4 text-center text-gray-400 text-sm">Tidak ada data absensi yang sesuai filter.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: REKAPITULASI PARKIR -->
+                    <div x-show="role === 'admin' && activeTab === 'rekap-parkir'" class="bg-white p-6 rounded-lg shadow space-y-4">
+                        <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Reimburse Parkir (Approval)</h2>
+                        <!-- Filter Bar -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-50 p-4 rounded border text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="date" x-model="filters.parkir.tanggal" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Kontrak</label>
+                                <select x-model="filters.parkir.kontrak" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Jabatan</label>
+                                <select x-model="filters.parkir.jabatan" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Jabatan</option>
+                                    <template x-for="jab in jabatanList" :key="jab"><option :value="jab" x-text="jab"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Status</label>
+                                <select x-model="filters.parkir.status" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Nama</label>
+                                <input type="text" x-model="filters.parkir.nama" placeholder="Cari nama..." class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Foto Karcis</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Nilai (Nominal)</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="log in filteredLogs('rekap-parkir')" :key="log.id">
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3 font-semibold text-gray-600" x-text="log.tanggal || '-'"></td>
+                                            <td class="p-3 font-medium" x-text="log.name"></td>
+                                            <td class="p-3" x-text="log.kontrak"></td>
+                                            <td class="p-3" x-text="log.jabatan"></td>
+                                            <td class="p-3">
+                                                <template x-if="log.photo">
+                                                    <a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat Foto</a>
+                                                </template>
+                                                <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3">
+                                                <span :class="{
+                                                    'bg-green-100 text-green-800': log.status === 'Approved',
+                                                    'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                    'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                            </td>
+                                            <td class="p-3 font-bold">
+                                                <div class="flex items-center gap-1">
+                                                    <input type="number" x-model.number="log.rawNominal" @change="updateParkirNominal(log.id, log.rawNominal)" class="w-24 border rounded px-1 py-1 text-xs">
+                                                </div>
+                                            </td>
+                                            <td class="p-3 space-x-1 whitespace-nowrap">
+                                                <button @click="updateApprovalGeneric(log.id, 'Approved')" class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-green-700">Approve</button>
+                                                <button @click="updateApprovalGeneric(log.id, 'Rejected')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-red-700">Reject</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredLogs('rekap-parkir').length === 0">
+                                        <tr><td colspan="8" class="p-4 text-center text-gray-400 text-sm">Tidak ada data klaim parkir yang sesuai filter.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: REKAPITULASI GEDUNG -->
+                    <div x-show="role === 'admin' && activeTab === 'rekap-gedung'" class="bg-white p-6 rounded-lg shadow space-y-4">
+                        <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Kirim ke Gedung (Approval)</h2>
+                        <!-- Filter Bar -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-50 p-4 rounded border text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="date" x-model="filters.gedung.tanggal" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Kontrak</label>
+                                <select x-model="filters.gedung.kontrak" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Jabatan</label>
+                                <select x-model="filters.gedung.jabatan" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Jabatan</option>
+                                    <template x-for="jab in jabatanList" :key="jab"><option :value="jab" x-text="jab"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Status</label>
+                                <select x-model="filters.gedung.status" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Nama</label>
+                                <input type="text" x-model="filters.gedung.nama" placeholder="Cari nama..." class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Gedung & Lantai</th>
+                                        <th class="p-3">Nama Cust</th>
+                                        <th class="p-3">Sesi</th>
+                                        <th class="p-3">Foto Bukti</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="log in filteredLogs('rekap-gedung')" :key="log.id">
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3" x-text="log.tanggal"></td>
+                                            <td class="p-3 font-medium" x-text="log.name"></td>
+                                            <td class="p-3" x-text="log.kontrak"></td>
+                                            <td class="p-3" x-text="log.jabatan"></td>
+                                            <td class="p-3" x-text="log.gedungLantai"></td>
+                                            <td class="p-3" x-text="log.namaCust"></td>
+                                            <td class="p-3 font-semibold text-blue-600" x-text="log.sesi"></td>
+                                            <td class="p-3">
+                                                <template x-if="log.photo">
+                                                    <a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat Foto</a>
+                                                </template>
+                                                <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3">
+                                                <span :class="{
+                                                    'bg-green-100 text-green-800': log.status === 'Approved',
+                                                    'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                    'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                            </td>
+                                            <td class="p-3 space-x-1 whitespace-nowrap">
+                                                <button @click="updateApprovalGeneric(log.id, 'Approved')" class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-green-700">Approve</button>
+                                                <button @click="updateApprovalGeneric(log.id, 'Rejected')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-red-700">Reject</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredLogs('rekap-gedung').length === 0">
+                                        <tr><td colspan="10" class="p-4 text-center text-gray-400 text-sm">Tidak ada data gedung yang sesuai filter.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: REKAPITULASI ESTAFET -->
+                    <div x-show="role === 'admin' && activeTab === 'rekap-estafet'" class="bg-white p-6 rounded-lg shadow space-y-4">
+                        <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Estafet Paket (Approval)</h2>
+                        <!-- Filter Bar -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-50 p-4 rounded border text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="date" x-model="filters.estafet.tanggal" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Kontrak</label>
+                                <select x-model="filters.estafet.kontrak" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Jabatan</label>
+                                <select x-model="filters.estafet.jabatan" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Jabatan</option>
+                                    <template x-for="jab in jabatanList" :key="jab"><option :value="jab" x-text="jab"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Status</label>
+                                <select x-model="filters.estafet.status" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Nama</label>
+                                <input type="text" x-model="filters.estafet.nama" placeholder="Cari nama..." class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Estafet Area</th>
+                                        <th class="p-3">Alasan</th>
+                                        <th class="p-3">Foto</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="log in filteredLogs('rekap-estafet')" :key="log.id">
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3" x-text="log.tanggal"></td>
+                                            <td class="p-3 font-medium" x-text="log.name"></td>
+                                            <td class="p-3" x-text="log.kontrak"></td>
+                                            <td class="p-3" x-text="log.jabatan"></td>
+                                            <td class="p-3 font-semibold text-blue-600" x-text="log.estafetArea"></td>
+                                            <td class="p-3" x-text="log.alasan"></td>
+                                            <td class="p-3">
+                                                <template x-if="log.photo">
+                                                    <a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat Foto</a>
+                                                </template>
+                                                <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3">
+                                                <span :class="{
+                                                    'bg-green-100 text-green-800': log.status === 'Approved',
+                                                    'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                    'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                            </td>
+                                            <td class="p-3 space-x-1 whitespace-nowrap">
+                                                <button @click="updateApprovalGeneric(log.id, 'Approved')" class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-green-700">Approve</button>
+                                                <button @click="updateApprovalGeneric(log.id, 'Rejected')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-red-700">Reject</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredLogs('rekap-estafet').length === 0">
+                                        <tr><td colspan="9" class="p-4 text-center text-gray-400 text-sm">Tidak ada data estafet yang sesuai filter.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: REKAPITULASI JARAK -->
+                    <div x-show="role === 'admin' && activeTab === 'rekap-jarak'" class="bg-white p-6 rounded-lg shadow space-y-4">
+                        <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Pengiriman Jarak Jauh (Approval)</h2>
+                        <!-- Filter Bar -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-50 p-4 rounded border text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="date" x-model="filters.jarak.tanggal" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Kontrak</label>
+                                <select x-model="filters.jarak.kontrak" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Jabatan</label>
+                                <select x-model="filters.jarak.jabatan" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Jabatan</option>
+                                    <template x-for="jab in jabatanList" :key="jab"><option :value="jab" x-text="jab"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Status</label>
+                                <select x-model="filters.jarak.status" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Nama</label>
+                                <input type="text" x-model="filters.jarak.nama" placeholder="Cari nama..." class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Sesi</th>
+                                        <th class="p-3">Cust Terjauh</th>
+                                        <th class="p-3">Jarak</th>
+                                        <th class="p-3">Foto Box</th>
+                                        <th class="p-3">Foto Bukti</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="log in filteredLogs('rekap-jarak')" :key="log.id">
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3" x-text="log.tanggal"></td>
+                                            <td class="p-3 font-medium" x-text="log.name"></td>
+                                            <td class="p-3" x-text="log.kontrak"></td>
+                                            <td class="p-3" x-text="log.jabatan"></td>
+                                            <td class="p-3 font-semibold text-blue-600" x-text="log.sesi"></td>
+                                            <td class="p-3" x-text="log.custTerjauh"></td>
+                                            <td class="p-3 font-bold" x-text="log.jarak + ' KM'"></td>
+                                            <td class="p-3">
+                                                <template x-if="log.photoBox">
+                                                    <a :href="log.photoBox" target="_blank" class="text-blue-600 underline text-xs">Lihat Box</a>
+                                                </template>
+                                                <template x-if="!log.photoBox"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3">
+                                                <template x-if="log.photoBukti">
+                                                    <a :href="log.photoBukti" target="_blank" class="text-blue-600 underline text-xs">Lihat Bukti</a>
+                                                </template>
+                                                <template x-if="!log.photoBukti"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3">
+                                                <span :class="{
+                                                    'bg-green-100 text-green-800': log.status === 'Approved',
+                                                    'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                    'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                            </td>
+                                            <td class="p-3 space-x-1 whitespace-nowrap">
+                                                <button @click="updateApprovalGeneric(log.id, 'Approved')" class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-green-700">Approve</button>
+                                                <button @click="updateApprovalGeneric(log.id, 'Rejected')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-red-700">Reject</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredLogs('rekap-jarak').length === 0">
+                                        <tr><td colspan="11" class="p-4 text-center text-gray-400 text-sm">Tidak ada data jarak yang sesuai filter.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN: REKAPITULASI PICKUP -->
+                    <div x-show="role === 'admin' && activeTab === 'rekap-pickup'" class="bg-white p-6 rounded-lg shadow space-y-4">
+                        <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Ambil Barang (Approval)</h2>
+                        <!-- Filter Bar -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-50 p-4 rounded border text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="date" x-model="filters.pickup.tanggal" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Kontrak</label>
+                                <select x-model="filters.pickup.kontrak" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Jabatan</label>
+                                <select x-model="filters.pickup.jabatan" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Jabatan</option>
+                                    <template x-for="jab in jabatanList" :key="jab"><option :value="jab" x-text="jab"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Status</label>
+                                <select x-model="filters.pickup.status" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Filter Nama</label>
+                                <input type="text" x-model="filters.pickup.nama" placeholder="Cari nama..." class="w-full border rounded px-2 py-1 text-xs bg-white">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Deskripsi Barang</th>
+                                        <th class="p-3">Foto Barang</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="log in filteredLogs('rekap-pickup')" :key="log.id">
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3" x-text="log.tanggal"></td>
+                                            <td class="p-3 font-medium" x-text="log.name"></td>
+                                            <td class="p-3" x-text="log.kontrak"></td>
+                                            <td class="p-3" x-text="log.jabatan"></td>
+                                            <td class="p-3" x-text="log.deskripsi"></td>
+                                            <td class="p-3">
+                                                <template x-if="log.photo">
+                                                    <a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat Foto</a>
+                                                </template>
+                                                <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                            </td>
+                                            <td class="p-3">
+                                                <span :class="{
+                                                    'bg-green-100 text-green-800': log.status === 'Approved',
+                                                    'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                    'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                            </td>
+                                            <td class="p-3 space-x-1 whitespace-nowrap">
+                                                <button @click="updateApprovalGeneric(log.id, 'Approved')" class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-green-700">Approve</button>
+                                                <button @click="updateApprovalGeneric(log.id, 'Rejected')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold hover:bg-red-700">Reject</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredLogs('rekap-pickup').length === 0">
+                                        <tr><td colspan="8" class="p-4 text-center text-gray-400 text-sm">Tidak ada data ambil barang yang sesuai filter.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- KURIR: ABSENSI HARIAN -->
+                    <div x-show="role === 'kurir' && activeTab === 'kurir-absen'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Absensi Harian (Real-time Kamera)</h2>
+                            <p class="text-sm text-gray-600 mb-4">Silakan pilih jenis absen, ambil foto langsung menggunakan kamera, lalu kirim.</p>
+                            
+                            <div class="space-y-4 max-w-lg">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Jenis Absen</label>
+                                    <select x-model="absenForm.type" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Absen Datang">Absen Datang (Masuk)</option>
+                                        <option value="Absen Pulang">Absen Pulang</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kamera Real-time</label>
+                                    <div class="space-y-2">
+                                        <div x-show="!absenForm.capturedImage">
+                                            <video id="cameraStream" autoplay playsinline class="w-full h-48 bg-black rounded object-cover"></video>
+                                            <button type="button" @click="takeSnapshot()" class="mt-2 bg-gray-800 text-white px-4 py-2 rounded text-xs font-semibold hover:bg-black">📸 Ambil Foto Kamera</button>
+                                        </div>
+                                        <div x-show="absenForm.capturedImage">
+                                            <img :src="absenForm.capturedImage" class="w-full h-48 rounded object-cover border">
+                                            <button type="button" @click="retakeSnapshot()" class="mt-2 bg-yellow-600 text-white px-4 py-2 rounded text-xs font-semibold hover:bg-yellow-700">🔄 Ambil Ulang Foto</button>
+                                        </div>
+                                    </div>
+                                    <canvas id="snapshotCanvas" class="hidden"></canvas>
+                                </div>
+
+                                <button @click="submitAbsen()" class="w-full bg-green-600 text-white py-2 rounded text-sm font-semibold hover:bg-green-700">Kirim Absensi</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Riwayat Absensi Harian Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Nama</th>
+                                            <th class="p-3">Kontrak</th>
+                                            <th class="p-3">Jabatan</th>
+                                            <th class="p-3">Absen Datang</th>
+                                            <th class="p-3">Foto Datang</th>
+                                            <th class="p-3">Absen Pulang</th>
+                                            <th class="p-3">Foto Pulang</th>
+                                            <th class="p-3">Total Jam Kerja</th>
+                                            <th class="p-3">Status</th>
+                                            <th class="p-3">Nilai</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="rec in getAttendanceSummary().filter(r => r.username === currentUser.username)" :key="rec.key">
+                                            <tr class="border-b hover:bg-gray-50 align-middle">
+                                                <td class="p-3 font-semibold text-gray-600" x-text="rec.date"></td>
+                                                <td class="p-3 font-medium" x-text="rec.name"></td>
+                                                <td class="p-3" x-text="rec.kontrak"></td>
+                                                <td class="p-3" x-text="rec.jabatan"></td>
+                                                <td class="p-3 text-xs text-blue-600 font-medium" x-text="rec.timeDatang || '-'"></td>
+                                                <td class="p-3">
+                                                    <template x-if="rec.photoDatang"><a :href="rec.photoDatang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
+                                                    <template x-if="!rec.photoDatang"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3 text-xs text-blue-600 font-medium" x-text="rec.timePulang || '-'"></td>
+                                                <td class="p-3">
+                                                    <template x-if="rec.photoPulang"><a :href="rec.photoPulang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
+                                                    <template x-if="!rec.photoPulang"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3 font-semibold text-gray-700" x-text="rec.totalJam"></td>
+                                                <td class="p-3">
+                                                    <span :class="{
+                                                        'bg-green-100 text-green-800': rec.status === 'Approved',
+                                                        'bg-blue-100 text-blue-800': rec.status === 'Partial',
+                                                        'bg-red-100 text-red-800': rec.status === 'Rejected',
+                                                        'bg-yellow-100 text-yellow-800': rec.status === 'Pending'
+                                                    }" class="px-2 py-1 rounded text-xs font-semibold" x-text="rec.status"></span>
+                                                </td>
+                                                <td class="p-3 font-bold" x-text="rec.nilai"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="getAttendanceSummary().filter(r => r.username === currentUser.username).length === 0">
+                                            <tr><td colspan="11" class="p-4 text-center text-gray-400 text-sm">Belum ada riwayat absensi.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KURIR: PARKIR & REIMBURSE -->
+                    <div x-show="role === 'kurir' && activeTab === 'kurir-parkir'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Form Reimburse Parkir</h2>
+                            <form @submit.prevent="submitParkir()" class="space-y-4 max-w-lg">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" x-model="parkirForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Parkir (Rp)</label>
+                                    <input type="number" x-model="parkirForm.nominal" disabled class="w-full border rounded px-3 py-2 text-sm bg-gray-100 cursor-not-allowed">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Foto Karcis Parkir</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'parkir')" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <template x-if="parkirForm.photo"><img :src="parkirForm.photo" class="mt-2 w-24 h-24 object-cover rounded border"></template>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700">Kirim Klaim Parkir</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Riwayat & Status Klaim Parkir Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Foto Karcis</th>
+                                            <th class="p-3">Status</th>
+                                            <th class="p-3">Nilai (Nominal)</th>
+                                            <th class="p-3">Waktu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="log in activityLogs.filter(l => l.type === 'rekap-parkir' && l.username === currentUser.username)" :key="log.id">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="log.tanggal || '-'"></td>
+                                                <td class="p-3">
+                                                    <template x-if="log.photo"><a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
+                                                    <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span :class="{
+                                                        'bg-green-100 text-green-800': log.status === 'Approved',
+                                                        'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                        'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                    }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                                </td>
+                                                <td class="p-3 font-bold" x-text="'Rp ' + log.rawNominal"></td>
+                                                <td class="p-3 text-gray-500 text-xs" x-text="log.time"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="activityLogs.filter(l => l.type === 'rekap-parkir' && l.username === currentUser.username).length === 0">
+                                            <tr><td colspan="5" class="p-4 text-center text-gray-400 text-sm">Belum ada riwayat klaim parkir.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KURIR: GEDUNG -->
+                    <div x-show="role === 'kurir' && activeTab === 'kurir-gedung'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Form Pengiriman ke Gedung</h2>
+                            <form @submit.prevent="submitGedung()" class="space-y-4 max-w-lg">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" x-model="gedungForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Gedung dan Lantai</label>
+                                    <input type="text" x-model="gedungForm.gedungLantai" placeholder="Contoh: Menara BCA Lt. 12" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer</label>
+                                    <input type="text" x-model="gedungForm.namaCust" placeholder="Nama Customer" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sesi</label>
+                                    <select x-model="gedungForm.sesi" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Lunch">Lunch</option>
+                                        <option value="Dinner">Dinner</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Foto Bukti</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'gedung')" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <template x-if="gedungForm.photo"><img :src="gedungForm.photo" class="mt-2 w-24 h-24 object-cover rounded border"></template>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700">Kirim Laporan Gedung</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Riwayat Gedung Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Gedung & Lantai</th>
+                                            <th class="p-3">Nama Cust</th>
+                                            <th class="p-3">Sesi</th>
+                                            <th class="p-3">Foto Bukti</th>
+                                            <th class="p-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="log in activityLogs.filter(l => l.type === 'rekap-gedung' && l.username === currentUser.username)" :key="log.id">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="log.tanggal"></td>
+                                                <td class="p-3 font-medium" x-text="log.gedungLantai"></td>
+                                                <td class="p-3" x-text="log.namaCust"></td>
+                                                <td class="p-3 font-semibold text-blue-600" x-text="log.sesi"></td>
+                                                <td class="p-3">
+                                                    <template x-if="log.photo"><a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
+                                                    <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span :class="{
+                                                        'bg-green-100 text-green-800': log.status === 'Approved',
+                                                        'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                        'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                    }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="activityLogs.filter(l => l.type === 'rekap-gedung' && l.username === currentUser.username).length === 0">
+                                            <tr><td colspan="6" class="p-4 text-center text-gray-400 text-sm">Belum ada riwayat pengiriman gedung.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KURIR: ESTAFET -->
+                    <div x-show="role === 'kurir' && activeTab === 'kurir-estafet'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Form Estafet Paket</h2>
+                            <form @submit.prevent="submitEstafet()" class="space-y-4 max-w-lg">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" x-model="estafetForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Estafet Area</label>
+                                    <select x-model="estafetForm.estafetArea" required class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="">Pilih Area Estafet</option>
+                                        <template x-for="area in estafetAreaList" :key="area">
+                                            <option :value="area" x-text="area"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Estafet</label>
+                                    <textarea x-model="estafetForm.alasan" placeholder="Alasan melakukan estafet" required class="w-full border rounded px-3 py-2 text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Foto</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'estafet')" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <template x-if="estafetForm.photo"><img :src="estafetForm.photo" class="mt-2 w-24 h-24 object-cover rounded border"></template>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700">Kirim Laporan Estafet</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Riwayat Estafet Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Estafet Area</th>
+                                            <th class="p-3">Alasan</th>
+                                            <th class="p-3">Foto</th>
+                                            <th class="p-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="log in activityLogs.filter(l => l.type === 'rekap-estafet' && l.username === currentUser.username)" :key="log.id">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="log.tanggal"></td>
+                                                <td class="p-3 font-semibold text-blue-600" x-text="log.estafetArea"></td>
+                                                <td class="p-3" x-text="log.alasan"></td>
+                                                <td class="p-3">
+                                                    <template x-if="log.photo"><a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
+                                                    <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span :class="{
+                                                        'bg-green-100 text-green-800': log.status === 'Approved',
+                                                        'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                        'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                    }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="activityLogs.filter(l => l.type === 'rekap-estafet' && l.username === currentUser.username).length === 0">
+                                            <tr><td colspan="5" class="p-4 text-center text-gray-400 text-sm">Belum ada riwayat estafet.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KURIR: JARAK -->
+                    <div x-show="role === 'kurir' && activeTab === 'kurir-jarak'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Form Pengiriman Jarak Jauh</h2>
+                            <form @submit.prevent="submitJarak()" class="space-y-4 max-w-lg">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" x-model="jarakForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sesi</label>
+                                    <select x-model="jarakForm.sesi" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Lunch">Lunch</option>
+                                        <option value="Dinner">Dinner</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer Terjauh</label>
+                                    <input type="text" x-model="jarakForm.custTerjauh" placeholder="Nama customer" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jarak (KM)</label>
+                                    <input type="number" x-model="jarakForm.jarak" placeholder="Contoh: 12" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <p class="text-xs text-red-500 mt-1" x-show="currentUser.kontrak === 'Part Time'">*Catatan: Part Time dibatasi maksimal jarak pengiriman 15 KM.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Foto Box Customer Terjauh</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'jarakBox')" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <template x-if="jarakForm.photoBox"><img :src="jarakForm.photoBox" class="mt-2 w-24 h-24 object-cover rounded border"></template>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Foto Bukti Jarak</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'jarakBukti')" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <template x-if="jarakForm.photoBukti"><img :src="jarakForm.photoBukti" class="mt-2 w-24 h-24 object-cover rounded border"></template>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700">Kirim Laporan Jarak</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Riwayat Jarak Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Sesi</th>
+                                            <th class="p-3">Cust Terjauh</th>
+                                            <th class="p-3">Jarak</th>
+                                            <th class="p-3">Foto Box</th>
+                                            <th class="p-3">Foto Bukti</th>
+                                            <th class="p-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="log in activityLogs.filter(l => l.type === 'rekap-jarak' && l.username === currentUser.username)" :key="log.id">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="log.tanggal"></td>
+                                                <td class="p-3 font-semibold text-blue-600" x-text="log.sesi"></td>
+                                                <td class="p-3" x-text="log.custTerjauh"></td>
+                                                <td class="p-3 font-bold" x-text="log.jarak + ' KM'"></td>
+                                                <td class="p-3">
+                                                    <template x-if="log.photoBox"><a :href="log.photoBox" target="_blank" class="text-blue-600 underline text-xs">Lihat Box</a></template>
+                                                    <template x-if="!log.photoBox"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3">
+                                                    <template x-if="log.photoBukti"><a :href="log.photoBukti" target="_blank" class="text-blue-600 underline text-xs">Lihat Bukti</a></template>
+                                                    <template x-if="!log.photoBukti"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span :class="{
+                                                        'bg-green-100 text-green-800': log.status === 'Approved',
+                                                        'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                        'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                    }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="activityLogs.filter(l => l.type === 'rekap-jarak' && l.username === currentUser.username).length === 0">
+                                            <tr><td colspan="7" class="p-4 text-center text-gray-400 text-sm">Belum ada riwayat jarak.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KURIR: AMBIL BARANG -->
+                    <div x-show="role === 'kurir' && activeTab === 'kurir-pickup'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h2 class="text-lg font-bold mb-4 text-gray-800">Form Ambil Barang (Pickup)</h2>
+                            <form @submit.prevent="submitPickup()" class="space-y-4 max-w-lg">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" x-model="pickupForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Barang</label>
+                                    <textarea x-model="pickupForm.deskripsi" placeholder="Deskripsi barang yang diambil" required class="w-full border rounded px-3 py-2 text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Foto</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'pickup')" required class="w-full border rounded px-3 py-2 text-sm">
+                                    <template x-if="pickupForm.photo"><img :src="pickupForm.photo" class="mt-2 w-24 h-24 object-cover rounded border"></template>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700">Kirim Laporan Pickup</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="font-semibold text-gray-700 mb-3">Riwayat Pickup Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b">
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Deskripsi Barang</th>
+                                            <th class="p-3">Foto Barang</th>
+                                            <th class="p-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="log in activityLogs.filter(l => l.type === 'rekap-pickup' && l.username === currentUser.username)" :key="log.id">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3" x-text="log.tanggal"></td>
+                                                <td class="p-3" x-text="log.deskripsi"></td>
+                                                <td class="p-3">
+                                                    <template x-if="log.photo"><a :href="log.photo" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
+                                                    <template x-if="!log.photo"><span class="text-gray-400 text-xs">-</span></template>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span :class="{
+                                                        'bg-green-100 text-green-800': log.status === 'Approved',
+                                                        'bg-red-100 text-red-800': log.status === 'Rejected',
+                                                        'bg-yellow-100 text-yellow-800': log.status === 'Pending'
+                                                    }" class="px-2 py-1 rounded text-xs font-semibold" x-text="log.status"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="activityLogs.filter(l => l.type === 'rekap-pickup' && l.username === currentUser.username).length === 0">
+                                            <tr><td colspan="4" class="p-4 text-center text-gray-400 text-sm">Belum ada riwayat ambil barang.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Script Logika -->
+    <script>
+        function app() {
+            return {
+                isLoggedIn: false,
+                loginRole: 'admin',
+                loginInput: { username: '', password: '', kurirUsername: '', kurirPassword: '' },
+                loginError: '',
+                isLoading: false,
+
+                // URL Web App Google Apps Script Anda
+                gasUrl: 'https://script.google.com/macros/s/AKfycby92iqT4AZwc9dfD7TB_xu9zU5EwDqLij4UArMJtwuXoGGvgToD2Tc0McGYsuq6K1tj3g/exec',
+
+                role: '', 
+                activeTab: 'admin-kurir',
+
+                filters: {
+                    absen: { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' },
+                    parkir: { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' },
+                    gedung: { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' },
+                    estafet: { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' },
+                    jarak: { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' },
+                    pickup: { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' }
+                },
+                
+                jabatanList: JSON.parse(localStorage.getItem('jabatanList')) || ['Kurir', 'Driver', 'Korlap'],
+                jabatanForm: { name: '', editIndex: null },
+
+                estafetAreaList: JSON.parse(localStorage.getItem('estafetAreaList')) || ['Zona Pusat', 'Zona Utara', 'Zona Selatan'],
+                estafetAreaForm: { name: '', editIndex: null },
+
+                kurirList: JSON.parse(localStorage.getItem('kurirList')) || [
+                    { name: 'Budi Santoso', username: 'budi', password: '123', kontrak: 'Full Time', jabatan: 'Kurir' },
+                    { name: 'Andi Pratama', username: 'andi', password: '123', kontrak: 'Part Time', jabatan: 'Driver' }
+                ],
+                currentUser: {},
+                kurirForm: { name: '', username: '', password: '', kontrak: 'Full Time', jabatan: 'Kurir', editIndex: null },
+                
+                absenForm: { type: 'Absen Datang', capturedImage: null },
+                parkirForm: { tanggal: '', nominal: 2000, photo: null },
+                gedungForm: { tanggal: '', gedungLantai: '', namaCust: '', sesi: 'Lunch', photo: null },
+                estafetForm: { tanggal: '', estafetArea: '', alasan: '', photo: null },
+                jarakForm: { tanggal: '', sesi: 'Lunch', custTerjauh: '', jarak: '', photoBox: '', photoBukti: '' },
+                pickupForm: { tanggal: '', deskripsi: '', photo: null },
+
+                activityLogs: JSON.parse(localStorage.getItem('activityLogs')) || [],
+
+                // Fungsi Kompresi Foto agar ukuran file optimal & hemat Google Drive
+                compressImage(base64Str, maxWidth = 800, quality = 0.7) {
+                    return new Promise((resolve) => {
+                        let img = new Image();
+                        img.src = base64Str;
+                        img.onload = () => {
+                            let canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            let ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL('image/jpeg', quality));
+                        };
+                    });
+                },
+
+                // Fungsi Kirim Data ke Google Apps Script / Sheets
+                async sendToGoogleSheets(sheetType, payloadData) {
+                    this.isLoading = true;
+                    try {
+                        let response = await fetch(this.gasUrl, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sheetType: sheetType, ...payloadData })
+                        });
+                        this.isLoading = false;
+                        return true;
+                    } catch (error) {
+                        this.isLoading = false;
+                        console.error("Gagal mengirim ke Google Sheets:", error);
+                        alert("Terjadi kesalahan jaringan saat mengirim ke server.");
+                        return false;
+                    }
+                },
+
+                initCamera() {
+                    setTimeout(() => {
+                        const video = document.getElementById('cameraStream');
+                        if (video) {
+                            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                                .then(stream => { video.srcObject = stream; })
+                                .catch(err => { console.log("Kamera tidak dapat diakses: ", err); });
+                        }
+                    }, 300);
+                },
+
+                async takeSnapshot() {
+                    const video = document.getElementById('cameraStream');
+                    const canvas = document.getElementById('snapshotCanvas');
+                    if (video && canvas) {
+                        canvas.width = video.videoWidth || 320;
+                        canvas.height = video.videoHeight || 240;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        let rawImg = canvas.toDataURL('image/jpeg', 0.9);
+                        this.absenForm.capturedImage = await this.compressImage(rawImg, 700, 0.6);
+                    }
+                },
+
+                retakeSnapshot() {
+                    this.absenForm.capturedImage = null;
+                    this.initCamera();
+                },
+
+                async handleFileUpload(event, type) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            let compressed = await this.compressImage(e.target.result, 800, 0.6);
+                            if (type === 'parkir') this.parkirForm.photo = compressed;
+                            if (type === 'gedung') this.gedungForm.photo = compressed;
+                            if (type === 'estafet') this.estafetForm.photo = compressed;
+                            if (type === 'jarakBox') this.jarakForm.photoBox = compressed;
+                            if (type === 'jarakBukti') this.jarakForm.photoBukti = compressed;
+                            if (type === 'pickup') this.pickupForm.photo = compressed;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+
+                handleLogin() {
+                    this.loginError = '';
+                    if (this.loginRole === 'admin') {
+                        if (this.loginInput.username === 'admin' && this.loginInput.password === 'admin123') {
+                            this.role = 'admin';
+                            this.isLoggedIn = true;
+                            this.activeTab = 'admin-kurir';
+                        } else {
+                            this.loginError = 'Username atau Password Admin salah!';
+                        }
+                    } else {
+                        if (!this.loginInput.kurirUsername) {
+                            this.loginError = 'Silakan masukkan username Anda.';
+                            return;
+                        }
+                        const found = this.kurirList.find(k => k.username.toLowerCase() === this.loginInput.kurirUsername.toLowerCase());
+                        if (found) {
+                            if (found.password === this.loginInput.kurirPassword) {
+                                this.role = 'kurir';
+                                this.currentUser = found;
+                                this.isLoggedIn = true;
+                                this.activeTab = 'kurir-absen';
+                                this.initCamera();
+                            } else {
+                                this.loginError = 'Password salah!';
+                            }
+                        } else {
+                            this.loginError = 'Username tidak ditemukan dalam sistem.';
+                        }
+                    }
+                },
+
+                logout() {
+                    this.isLoggedIn = false;
+                    this.loginInput = { username: '', password: '', kurirUsername: '', kurirPassword: '' };
+                },
+
+                saveJabatan() {
+                    const name = this.jabatanForm.name.trim();
+                    if(!name) return;
+                    if (this.jabatanForm.editIndex === null) {
+                        if(this.jabatanList.includes(name)) { alert('Jabatan sudah ada!'); return; }
+                        this.jabatanList.push(name);
+                    } else {
+                        this.jabatanList[this.jabatanForm.editIndex] = name;
+                        this.jabatanForm.editIndex = null;
+                    }
+                    localStorage.setItem('jabatanList', JSON.stringify(this.jabatanList));
+                    this.jabatanForm.name = '';
+                    alert('Master Jabatan berhasil disimpan!');
+                },
+                editJabatan(i) { this.jabatanForm.name = this.jabatanList[i]; this.jabatanForm.editIndex = i; },
+                cancelEditJabatan() { this.jabatanForm = { name: '', editIndex: null }; },
+                deleteJabatan(i) {
+                    if(this.jabatanList.length <= 1) { alert('Minimal 1 jabatan!'); return; }
+                    if(confirm('Hapus jabatan?')) { this.jabatanList.splice(i, 1); localStorage.setItem('jabatanList', JSON.stringify(this.jabatanList)); }
+                },
+
+                saveEstafetArea() {
+                    const name = this.estafetAreaForm.name.trim();
+                    if(!name) return;
+                    if (this.estafetAreaForm.editIndex === null) {
+                        if(this.estafetAreaList.includes(name)) { alert('Area sudah ada!'); return; }
+                        this.estafetAreaList.push(name);
+                    } else {
+                        this.estafetAreaList[this.estafetAreaForm.editIndex] = name;
+                        this.estafetAreaForm.editIndex = null;
+                    }
+                    localStorage.setItem('estafetAreaList', JSON.stringify(this.estafetAreaList));
+                    this.estafetAreaForm.name = '';
+                    alert('Master Estafet Area berhasil disimpan!');
+                },
+                editEstafetArea(i) { this.estafetAreaForm.name = this.estafetAreaList[i]; this.estafetAreaForm.editIndex = i; },
+                cancelEditEstafetArea() { this.estafetAreaForm = { name: '', editIndex: null }; },
+                deleteEstafetArea(i) {
+                    if(this.estafetAreaList.length <= 1) { alert('Minimal 1 area!'); return; }
+                    if(confirm('Hapus area?')) { this.estafetAreaList.splice(i, 1); localStorage.setItem('estafetAreaList', JSON.stringify(this.estafetAreaList)); }
+                },
+
+                saveKurir() {
+                    if(!this.kurirForm.name || !this.kurirForm.username) return;
+                    if (this.kurirForm.editIndex === null) {
+                        if(!this.kurirForm.password) { alert('Password wajib diisi!'); return; }
+                        this.kurirList.push({ ...this.kurirForm });
+                    } else {
+                        const idx = this.kurirForm.editIndex;
+                        this.kurirList[idx].name = this.kurirForm.name;
+                        this.kurirList[idx].username = this.kurirForm.username;
+                        if(this.kurirForm.password) this.kurirList[idx].password = this.kurirForm.password;
+                        this.kurirList[idx].kontrak = this.kurirForm.kontrak;
+                        this.kurirList[idx].jabatan = this.kurirForm.jabatan;
+                        this.kurirForm.editIndex = null;
+                    }
+                    localStorage.setItem('kurirList', JSON.stringify(this.kurirList));
+                    this.kurirForm = { name: '', username: '', password: '', kontrak: 'Full Time', jabatan: this.jabatanList[0], editIndex: null };
+                    alert('Data pegawai berhasil disimpan!');
+                },
+                editKurir(i) {
+                    const k = this.kurirList[i];
+                    this.kurirForm = { name: k.name, username: k.username, password: '', kontrak: k.kontrak, jabatan: k.jabatan, editIndex: i };
+                },
+                cancelEditKurir() { this.kurirForm = { name: '', username: '', password: '', kontrak: 'Full Time', jabatan: this.jabatanList[0], editIndex: null }; },
+                deleteKurir(i) {
+                    if(confirm('Hapus pegawai?')) { this.kurirList.splice(i, 1); localStorage.setItem('kurirList', JSON.stringify(this.kurirList)); }
+                },
+
+                getAttendanceSummary() {
+                    const absens = this.activityLogs.filter(l => l.type === 'rekap-absen');
+                    const map = {};
+                    absens.forEach(log => {
+                        const dateOnly = log.time.split(',')[0].trim();
+                        const key = `${log.username}_${dateOnly}`;
+                        if (!map[key]) {
+                            map[key] = {
+                                key: key, date: dateOnly, username: log.username, name: log.name,
+                                kontrak: log.kontrak, jabatan: log.jabatan,
+                                timeDatang: null, photoDatang: null, timePulang: null, photoPulang: null,
+                                rawDatangDate: null, rawPulangDate: null, status: log.status || 'Pending', nilai: log.nilai || '-', ids: []
+                            };
+                        }
+                        map[key].ids.push(log.id);
+                        if (log.absenType === 'Absen Datang') {
+                            map[key].timeDatang = log.time;
+                            map[key].photoDatang = log.photo;
+                            map[key].rawDatangDate = new Date(log.rawTimestamp || log.time);
+                        } else if (log.absenType === 'Absen Pulang') {
+                            map[key].timePulang = log.time;
+                            map[key].photoPulang = log.photo;
+                            map[key].rawPulangDate = new Date(log.rawTimestamp || log.time);
+                        }
+                        if(log.status && log.status !== 'Pending') {
+                            map[key].status = log.status;
+                            map[key].nilai = log.nilai;
+                        }
+                    });
+
+                    const results = Object.values(map);
+                    results.forEach(rec => {
+                        if (rec.rawDatangDate && rec.rawPulangDate && !isNaN(rec.rawDatangDate) && !isNaN(rec.rawPulangDate)) {
+                            let diffMs = rec.rawPulangDate - rec.rawDatangDate;
+                            if (diffMs > 0) {
+                                let totalSecs = Math.floor(diffMs / 1000);
+                                let hrs = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
+                                let mins = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+                                let secs = String(totalSecs % 60).padStart(2, '0');
+                                rec.totalJam = `${hrs}:${mins}:${secs}`;
+                            } else {
+                                rec.totalJam = '00:00:00';
+                            }
+                        } else {
+                            rec.totalJam = '-';
+                        }
+                    });
+                    return results;
+                },
+
+                get filteredAttendance() {
+                    let f = this.filters.absen;
+                    return this.getAttendanceSummary().filter(rec => {
+                        let matchTanggal = f.tanggal ? rec.date === f.tanggal : true;
+                        let matchKontrak = f.kontrak ? rec.kontrak === f.kontrak : true;
+                        let matchJabatan = f.jabatan ? rec.jabatan === f.jabatan : true;
+                        let matchStatus = f.status ? rec.status === f.status : true;
+                        let matchNama = f.nama ? rec.name.toLowerCase().includes(f.nama.toLowerCase()) : true;
+                        return matchTanggal && matchKontrak && matchJabatan && matchStatus && matchNama;
+                    });
+                },
+
+                filteredLogs(type) {
+                    let tabKey = type.replace('rekap-', '');
+                    if(tabKey === 'parkir') tabKey = 'parkir';
+                    let f = this.filters[tabKey] || { tanggal: '', kontrak: '', jabatan: '', status: '', nama: '' };
+
+                    return this.activityLogs.filter(log => {
+                        if (log.type !== type) return false;
+                        let matchTanggal = f.tanggal ? log.tanggal === f.tanggal : true;
+                        let matchKontrak = f.kontrak ? log.kontrak === f.kontrak : true;
+                        let matchJabatan = f.jabatan ? log.jabatan === f.jabatan : true;
+                        let matchStatus = f.status ? log.status === f.status : true;
+                        let matchNama = f.nama ? log.name.toLowerCase().includes(f.nama.toLowerCase()) : true;
+                        return matchTanggal && matchKontrak && matchJabatan && matchStatus && matchNama;
+                    });
+                },
+
+                updateDailyApproval(rec, newStatus, newNilai) {
+                    rec.ids.forEach(id => {
+                        const log = this.activityLogs.find(l => l.id === id);
+                        if(log) { log.status = newStatus; log.nilai = newNilai; }
+                    });
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Status dan nilai absensi harian berhasil diperbarui!');
+                },
+
+                updateParkirNominal(id, val) {
+                    const log = this.activityLogs.find(l => l.id === id);
+                    if(log) {
+                        log.rawNominal = Number(val);
+                        localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    }
+                },
+
+                updateApprovalGeneric(id, newStatus) {
+                    const log = this.activityLogs.find(l => l.id === id);
+                    if(log) {
+                        log.status = newStatus;
+                        if (log.type === 'rekap-parkir') {
+                            log.nilai = (newStatus === 'Rejected') ? 'Rp 0 (Rejected)' : 'Rp ' + log.rawNominal;
+                        }
+                        localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                        alert('Status berhasil diperbarui!');
+                    }
+                },
+
+                async submitAbsen() {
+                    if (!this.absenForm.capturedImage) { alert('Ambil foto kamera real-time terlebih dahulu!'); return; }
+                    const now = new Date();
+                    const tanggalStr = now.toISOString().split('T')[0];
+                    
+                    let newLog = {
+                        id: Date.now(), username: this.currentUser.username, name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan,
+                        type: 'rekap-absen', tanggal: tanggalStr, absenType: this.absenForm.type, photo: this.absenForm.capturedImage,
+                        status: 'Pending', nilai: '-', rawTimestamp: now.getTime(), time: now.toLocaleString()
+                    };
+
+                    await this.sendToGoogleSheets('absen', {
+                        tanggal: tanggalStr,
+                        name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak,
+                        jabatan: this.currentUser.jabatan,
+                        absenType: this.absenForm.type,
+                        photoBase64: this.absenForm.capturedImage,
+                        totalJam: '-',
+                        status: 'Pending',
+                        nilai: '-'
+                    });
+
+                    this.activityLogs.unshift(newLog);
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Absensi berhasil dikirim ke Google Sheets & Drive!');
+                    this.absenForm.capturedImage = null;
+                    this.initCamera();
+                },
+
+                async submitParkir() {
+                    if (this.currentUser.kontrak === 'Part Time' && Number(this.parkirForm.nominal) > 15000) {
+                        alert('Part-time batas maksimal klaim parkir Rp 15.000!'); return;
+                    }
+                    let newLog = {
+                        id: Date.now(), username: this.currentUser.username, name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan,
+                        type: 'rekap-parkir', tanggal: this.parkirForm.tanggal, photo: this.parkirForm.photo, status: 'Pending',
+                        nilai: 'Rp ' + this.parkirForm.nominal, rawNominal: this.parkirForm.nominal, time: new Date().toLocaleString()
+                    };
+
+                    await this.sendToGoogleSheets('parkir', {
+                        tanggal: this.parkirForm.tanggal,
+                        name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak,
+                        jabatan: this.currentUser.jabatan,
+                        photoBase64: this.parkirForm.photo,
+                        status: 'Pending',
+                        nominal: this.parkirForm.nominal
+                    });
+
+                    this.activityLogs.unshift(newLog);
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Klaim parkir berhasil dikirim ke Google Sheets & Drive!');
+                    this.parkirForm = { tanggal: '', nominal: 2000, photo: null };
+                },
+
+                async submitGedung() {
+                    let newLog = {
+                        id: Date.now(), username: this.currentUser.username, name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan,
+                        type: 'rekap-gedung', tanggal: this.gedungForm.tanggal, gedungLantai: this.gedungForm.gedungLantai,
+                        namaCust: this.gedungForm.namaCust, sesi: this.gedungForm.sesi, photo: this.gedungForm.photo, 
+                        status: 'Pending', time: new Date().toLocaleString()
+                    };
+
+                    await this.sendToGoogleSheets('gedung', {
+                        tanggal: this.gedungForm.tanggal,
+                        name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak,
+                        jabatan: this.currentUser.jabatan,
+                        gedungLantai: this.gedungForm.gedungLantai,
+                        namaCust: this.gedungForm.namaCust,
+                        sesi: this.gedungForm.sesi,
+                        photoBase64: this.gedungForm.photo,
+                        status: 'Pending'
+                    });
+
+                    this.activityLogs.unshift(newLog);
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Laporan gedung berhasil dikirim ke Google Sheets & Drive!');
+                    this.gedungForm = { tanggal: '', gedungLantai: '', namaCust: '', sesi: 'Lunch', photo: null };
+                },
+
+                async submitEstafet() {
+                    let newLog = {
+                        id: Date.now(), username: this.currentUser.username, name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan,
+                        type: 'rekap-estafet', tanggal: this.estafetForm.tanggal, estafetArea: this.estafetForm.estafetArea,
+                        alasan: this.estafetForm.alasan, photo: this.estafetForm.photo, 
+                        status: 'Pending', time: new Date().toLocaleString()
+                    };
+
+                    await this.sendToGoogleSheets('estafet', {
+                        tanggal: this.estafetForm.tanggal,
+                        name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak,
+                        jabatan: this.currentUser.jabatan,
+                        estafetArea: this.estafetForm.estafetArea,
+                        alasan: this.estafetForm.alasan,
+                        photoBase64: this.estafetForm.photo,
+                        status: 'Pending'
+                    });
+
+                    this.activityLogs.unshift(newLog);
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Laporan estafet berhasil dikirim ke Google Sheets & Drive!');
+                    this.estafetForm = { tanggal: '', estafetArea: '', alasan: '', photo: null };
+                },
+
+                async submitJarak() {
+                    if (this.currentUser.kontrak === 'Part Time' && Number(this.jarakForm.jarak) > 15) {
+                        alert('Part-time dibatasi maksimal jarak pengiriman 15 KM!'); return;
+                    }
+                    let newLog = {
+                        id: Date.now(), username: this.currentUser.username, name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan,
+                        type: 'rekap-jarak', tanggal: this.jarakForm.tanggal, sesi: this.jarakForm.sesi,
+                        custTerjauh: this.jarakForm.custTerjauh, jarak: this.jarakForm.jarak,
+                        photoBox: this.jarakForm.photoBox, photoBukti: this.jarakForm.photoBukti, 
+                        status: 'Pending', time: new Date().toLocaleString()
+                    };
+
+                    await this.sendToGoogleSheets('jarak', {
+                        tanggal: this.jarakForm.tanggal,
+                        name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak,
+                        jabatan: this.currentUser.jabatan,
+                        sesi: this.jarakForm.sesi,
+                        custTerjauh: this.jarakForm.custTerjauh,
+                        jarak: this.jarakForm.jarak,
+                        photoBoxBase64: this.jarakForm.photoBox,
+                        photoBuktiBase64: this.jarakForm.photoBukti,
+                        status: 'Pending'
+                    });
+
+                    this.activityLogs.unshift(newLog);
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Laporan jarak berhasil dikirim ke Google Sheets & Drive!');
+                    this.jarakForm = { tanggal: '', sesi: 'Lunch', custTerjauh: '', jarak: '', photoBox: '', photoBukti: '' };
+                },
+
+                async submitPickup() {
+                    let newLog = {
+                        id: Date.now(), username: this.currentUser.username, name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan,
+                        type: 'rekap-pickup', tanggal: this.pickupForm.tanggal, deskripsi: this.pickupForm.deskripsi,
+                        photo: this.pickupForm.photo, status: 'Pending', time: new Date().toLocaleString()
+                    };
+
+                    await this.sendToGoogleSheets('ambil barang', {
+                        tanggal: this.pickupForm.tanggal,
+                        name: this.currentUser.name,
+                        kontrak: this.currentUser.kontrak,
+                        jabatan: this.currentUser.jabatan,
+                        deskripsi: this.pickupForm.deskripsi,
+                        photoBase64: this.pickupForm.photo,
+                        status: 'Pending'
+                    });
+
+                    this.activityLogs.unshift(newLog);
+                    localStorage.setItem('activityLogs', JSON.stringify(this.activityLogs));
+                    alert('Laporan ambil barang berhasil dikirim ke Google Sheets & Drive!');
+                    this.pickupForm = { tanggal: '', deskripsi: '', photo: null };
+                }
+            }
+        }
+    </script>
+</body>
+</html>
