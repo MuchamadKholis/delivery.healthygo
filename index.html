@@ -327,12 +327,12 @@
                                             <td class="p-3" x-text="rec.jabatan"></td>
                                             <td class="p-3 text-xs text-blue-600 font-medium" x-text="rec.timeDatang || '-'"></td>
                                             <td class="p-3">
-                                                <template x-if="rec.photoDatang"><img :src="rec.photoDatang" class="w-12 h-12 object-cover rounded border cursor-pointer hover:scale-150 transition" @click="window.open(rec.photoDatang)"></template>
+                                                <template x-if="rec.photoDatang"><a :href="rec.photoDatang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
                                                 <template x-if="!rec.photoDatang"><span class="text-gray-400 text-xs">-</span></template>
                                             </td>
                                             <td class="p-3 text-xs text-blue-600 font-medium" x-text="rec.timePulang || '-'"></td>
                                             <td class="p-3">
-                                                <template x-if="rec.photoPulang"><img :src="rec.photoPulang" class="w-12 h-12 object-cover rounded border cursor-pointer hover:scale-150 transition" @click="window.open(rec.photoPulang)"></template>
+                                                <template x-if="rec.photoPulang"><a :href="rec.photoPulang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template>
                                                 <template x-if="!rec.photoPulang"><span class="text-gray-400 text-xs">-</span></template>
                                             </td>
                                             <td class="p-3 font-semibold text-gray-700" x-text="rec.totalJam"></td>
@@ -1287,7 +1287,7 @@
                 isLoading: false,
 
                 // URL Web App Google Apps Script Anda
-                gasUrl: 'https://script.google.com/macros/s/AKfycby92iqT4AZwc9dfD7TB_xu9zU5EwDqLij4UArMJtwuXoGGvgToD2Tc0McGYsuq6K1tj3g/exec',
+                gasUrl: 'https://script.google.com/macros/s/AKfycbzxMKigG8KQVGyo3m8RuezVVp9AZIwSfbIpi2_lcSA31DR7xDeYKSspiUiPt49E9xtaEg/exec',
 
                 role: '', 
                 activeTab: 'admin-kurir',
@@ -1323,8 +1323,8 @@
 
                 activityLogs: JSON.parse(localStorage.getItem('activityLogs')) || [],
 
-                // Fungsi Kompresi Foto agar ukuran file optimal & hemat Google Drive
-                compressImage(base64Str, maxWidth = 800, quality = 0.7) {
+                // Kompresi Foto Optimal (Resolusi Dikecilkan & Kualitas 50%) agar cepat & tidak loading lama
+                compressImage(base64Str, maxWidth = 500, quality = 0.5) {
                     return new Promise((resolve) => {
                         let img = new Image();
                         img.src = base64Str;
@@ -1345,21 +1345,20 @@
                     });
                 },
 
-                // Fungsi Kirim Data ke Google Apps Script / Sheets
+                // Kirim Data Cepat ke Google Sheets & Drive
                 async sendToGoogleSheets(sheetType, payloadData) {
                     this.isLoading = true;
                     try {
-                        let response = await fetch(this.gasUrl, {
+                        await fetch(this.gasUrl, {
                             method: 'POST',
                             mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ sheetType: sheetType, ...payloadData })
                         });
                         this.isLoading = false;
                         return true;
                     } catch (error) {
                         this.isLoading = false;
-                        console.error("Gagal mengirim ke Google Sheets:", error);
+                        console.error("Gagal mengirim:", error);
                         alert("Terjadi kesalahan jaringan saat mengirim ke server.");
                         return false;
                     }
@@ -1384,8 +1383,8 @@
                         canvas.height = video.videoHeight || 240;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        let rawImg = canvas.toDataURL('image/jpeg', 0.9);
-                        this.absenForm.capturedImage = await this.compressImage(rawImg, 700, 0.6);
+                        let rawImg = canvas.toDataURL('image/jpeg', 0.8);
+                        this.absenForm.capturedImage = await this.compressImage(rawImg, 500, 0.5);
                     }
                 },
 
@@ -1399,7 +1398,7 @@
                     if (file) {
                         const reader = new FileReader();
                         reader.onload = async (e) => {
-                            let compressed = await this.compressImage(e.target.result, 800, 0.6);
+                            let compressed = await this.compressImage(e.target.result, 600, 0.5);
                             if (type === 'parkir') this.parkirForm.photo = compressed;
                             if (type === 'gedung') this.gedungForm.photo = compressed;
                             if (type === 'estafet') this.estafetForm.photo = compressed;
