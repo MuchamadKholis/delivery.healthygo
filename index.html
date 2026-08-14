@@ -49,6 +49,7 @@
         </div>
     </template>
 
+
     <!-- ================= HALAMAN UTAMA SETELAH LOGIN ================= -->
     <template x-if="isLoggedIn">
         <div>
@@ -62,19 +63,24 @@
                 </div>
             </nav>
 
+
             <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
 
                 <!-- Sidebar -->
                 <div class="w-full md:w-1/4 bg-white p-4 rounded-lg shadow h-fit">
                     <h2 class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">Menu Navigasi</h2>
+
                     <ul class="space-y-2 text-sm">
+
                         <template x-if="role === 'admin'">
                             <div class="space-y-1">
                                 <li><button @click="changeTab('admin-kurir')" :class="activeTab === 'admin-kurir' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">👥 Kelola Pegawai</button></li>
                                 <li><button @click="changeTab('admin-jabatan')" :class="activeTab === 'admin-jabatan' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🏷️ Master Jabatan</button></li>
                                 <li><button @click="changeTab('admin-estafet-area')" :class="activeTab === 'admin-estafet-area' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📍 Master Estafet Area</button></li>
+
                                 <hr class="my-2">
                                 <p class="text-xs text-gray-400 px-3 uppercase tracking-wider font-bold">Rekapitulasi (Auto-Sync)</p>
+
                                 <li><button @click="changeTab('rekap-absen')" :class="activeTab === 'rekap-absen' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📍 Absensi (Harian)</button></li>
                                 <li><button @click="changeTab('rekap-parkir')" :class="activeTab === 'rekap-parkir' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🅿️ Parkir</button></li>
                                 <li><button @click="changeTab('rekap-gedung')" :class="activeTab === 'rekap-gedung' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🏢 Gedung</button></li>
@@ -83,22 +89,29 @@
                                 <li><button @click="changeTab('rekap-pickup')" :class="activeTab === 'rekap-pickup' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📦 Ambil Barang</button></li>
                             </div>
                         </template>
+
+
                         <template x-if="role === 'kurir'">
                             <div class="space-y-1">
                                 <li><button @click="changeTab('kurir-absen')" :class="activeTab === 'kurir-absen' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📍 Absensi Harian</button></li>
+
                                 <hr class="my-2">
                                 <p class="text-xs text-gray-400 px-3 uppercase tracking-wider font-bold">Tugas & Klaim</p>
+
                                 <li><button @click="changeTab('kurir-parkir')" :class="activeTab === 'kurir-parkir' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🅿️ Parkir & Reimburse</button></li>
                                 <li><button @click="changeTab('kurir-gedung')" :class="activeTab === 'kurir-gedung' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🏢 Gedung</button></li>
                                 <li><button @click="changeTab('kurir-estafet')" :class="activeTab === 'kurir-estafet' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🔄 Estafet</button></li>
                                 <li><button @click="changeTab('kurir-jarak')" :class="activeTab === 'kurir-jarak' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📏 Jarak</button></li>
                                 <li><button @click="changeTab('kurir-pickup')" :class="activeTab === 'kurir-pickup' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">📦 Ambil Barang</button></li>
+
                                 <hr class="my-2">
                                 <li><button @click="changeTab('kurir-password')" :class="activeTab === 'kurir-password' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600'" class="w-full text-left px-3 py-2 rounded hover:bg-gray-50">🔑 Ganti Password</button></li>
                             </div>
                         </template>
+
                     </ul>
                 </div>
+
 
                 <!-- Main Content -->
                 <div class="w-full md:w-3/4 space-y-4">
@@ -106,49 +119,104 @@
                     <!-- FILTER ADMIN -->
                     <template x-if="role === 'admin' && activeTab.startsWith('rekap-')">
                         <div class="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Filter Tanggal</label><input type="text" x-model="filters.tanggal" placeholder="yyyy-MM-dd" class="w-full border rounded px-2 py-1"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Cari Nama</label><input type="text" x-model="filters.nama" placeholder="Nama..." class="w-full border rounded px-2 py-1"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Kontrak</label>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Filter Tanggal</label>
+                                <input type="text" x-model="filters.tanggal" placeholder="yyyy-MM-dd" class="w-full border rounded px-2 py-1">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Cari Nama</label>
+                                <input type="text" x-model="filters.nama" placeholder="Nama..." class="w-full border rounded px-2 py-1">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Kontrak</label>
                                 <select x-model="filters.kontrak" class="w-full border rounded px-2 py-1">
-                                    <option value="">Semua Kontrak</option><option value="Full Time">Full Time</option><option value="Part Time">Part Time</option>
+                                    <option value="">Semua Kontrak</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
                                 </select>
                             </div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan</label>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan</label>
                                 <select x-model="filters.jabatan" class="w-full border rounded px-2 py-1">
                                     <option value="">Semua Jabatan</option>
-                                    <template x-for="jab in jabatanList"><option :value="jab" x-text="jab"></option></template>
+                                    <template x-for="jab in jabatanList">
+                                        <option :value="jab" x-text="jab"></option>
+                                    </template>
                                 </select>
                             </div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
                                 <select x-model="filters.status" class="w-full border rounded px-2 py-1">
-                                    <option value="">Semua Status</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option>
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
                                 </select>
                             </div>
                         </div>
                     </template>
 
+
                     <!-- ADMIN: KELOLA PEGAWAI -->
                     <div x-show="role === 'admin' && activeTab === 'admin-kurir'" class="space-y-6">
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h2 class="text-lg font-bold mb-4 text-gray-800">Tambah Pegawai Baru</h2>
+
                             <form @submit.prevent="saveKurir" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" x-model="kurirForm.name" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Username Login</label><input type="text" x-model="kurirForm.username" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label><input type="password" x-model="kurirForm.password" required class="w-full border rounded px-3 py-2 text-sm"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Kontrak</label><select x-model="kurirForm.kontrak" class="w-full border rounded px-3 py-2 text-sm"><option value="Full Time">Full Time</option><option value="Part Time">Part Time</option></select></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label><select x-model="kurirForm.jabatan" class="w-full border rounded px-3 py-2 text-sm"><template x-for="jab in jabatanList"><option :value="jab" x-text="jab"></option></template></select></div>
-                                <div class="flex items-end"><button type="submit" :disabled="kurirSaving" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700 disabled:opacity-60" x-text="kurirSaving ? 'Menyimpan...' : 'Simpan'"></button></div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kontrak</label>
+                                    <select x-model="kurirForm.kontrak" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Full Time">Full Time</option>
+                                        <option value="Part Time">Part Time</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
+                                    <select x-model="kurirForm.jabatan" class="w-full border rounded px-3 py-2 text-sm">
+                                        <template x-for="jab in jabatanList">
+                                            <option :value="jab" x-text="jab"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div class="flex items-end">
+                                    <button type="submit" :disabled="kurirSaving" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700 disabled:opacity-60" x-text="kurirSaving ? 'Menyimpan...' : 'Simpan'"></button>
+                                </div>
                             </form>
+
                             <p class="text-xs text-red-500 font-semibold" x-text="kurirFormError" x-show="kurirFormError"></p>
                         </div>
+
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3">Daftar Pegawai Terdaftar</h3>
+
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Nama & Username</th><th class="p-3">Jabatan</th><th class="p-3">Kontrak</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Nama & Username</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="k in sdmList" :key="k.username">
                                         <tr class="border-b hover:bg-gray-50">
-                                            <td class="p-3"><div class="font-medium" x-text="k.name"></div><div class="text-xs text-gray-500" x-text="'Username: ' + k.username"></div></td>
+                                            <td class="p-3">
+                                                <div class="font-medium" x-text="k.name"></div>
+                                                <div class="text-xs text-gray-500" x-text="'Username: ' + k.username"></div>
+                                            </td>
                                             <td class="p-3" x-text="k.jabatan"></td>
                                             <td class="p-3" x-text="k.kontrak"></td>
                                             <td class="p-3 space-x-1">
@@ -157,60 +225,103 @@
                                             </td>
                                         </tr>
                                     </template>
-                                    <tr x-show="sdmList.length === 0"><td class="p-3 text-gray-400 text-sm" colspan="4">Belum ada pegawai terdaftar.</td></tr>
+
+                                    <tr x-show="sdmList.length === 0">
+                                        <td class="p-3 text-gray-400 text-sm" colspan="4">Belum ada pegawai terdaftar.</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
+
                     <!-- ADMIN: MASTER JABATAN -->
                     <div x-show="role === 'admin' && activeTab === 'admin-jabatan'" class="bg-white p-6 rounded-lg shadow">
                         <h2 class="text-lg font-bold mb-4 text-gray-800">Kelola Master Jabatan</h2>
+
                         <form @submit.prevent="saveJabatan" class="flex gap-4 mb-6 pb-6 border-b">
                             <input type="text" x-model="jabatanForm.name" placeholder="Nama Jabatan" required class="flex-1 border rounded px-3 py-2 text-sm">
                             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded text-sm font-semibold">Tambah</button>
                         </form>
+
                         <table class="w-full text-left border-collapse text-sm">
-                            <thead><tr class="bg-gray-50 border-b"><th class="p-3">No</th><th class="p-3">Nama Jabatan</th><th class="p-3">Aksi</th></tr></thead>
+                            <thead>
+                                <tr class="bg-gray-50 border-b">
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Nama Jabatan</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+
                             <tbody>
                                 <template x-for="(jab, index) in jabatanList" :key="jab">
                                     <tr class="border-b hover:bg-gray-50">
                                         <td class="p-3" x-text="index + 1"></td>
                                         <td class="p-3 font-medium" x-text="jab"></td>
-                                        <td class="p-3"><button @click="deleteJabatan(jab)" class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button></td>
+                                        <td class="p-3">
+                                            <button @click="deleteJabatan(jab)" class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button>
+                                        </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
                     </div>
 
+
                     <!-- ADMIN: MASTER ESTAFET AREA -->
                     <div x-show="role === 'admin' && activeTab === 'admin-estafet-area'" class="bg-white p-6 rounded-lg shadow">
                         <h2 class="text-lg font-bold mb-4 text-gray-800">Kelola Master Estafet Area</h2>
+
                         <form @submit.prevent="saveEstafetArea" class="flex gap-4 mb-6 pb-6 border-b">
                             <input type="text" x-model="estafetAreaForm.name" placeholder="Nama Area Estafet" required class="flex-1 border rounded px-3 py-2 text-sm">
                             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded text-sm font-semibold">Tambah</button>
                         </form>
+
                         <table class="w-full text-left border-collapse text-sm">
-                            <thead><tr class="bg-gray-50 border-b"><th class="p-3">No</th><th class="p-3">Nama Area</th><th class="p-3">Aksi</th></tr></thead>
+                            <thead>
+                                <tr class="bg-gray-50 border-b">
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Nama Area</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+
                             <tbody>
                                 <template x-for="(area, index) in estafetAreaListAdmin" :key="area">
                                     <tr class="border-b hover:bg-gray-50">
                                         <td class="p-3" x-text="index + 1"></td>
                                         <td class="p-3 font-medium" x-text="area"></td>
-                                        <td class="p-3"><button @click="deleteEstafetArea(area)" class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button></td>
+                                        <td class="p-3">
+                                            <button @click="deleteEstafetArea(area)" class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button>
+                                        </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
                     </div>
 
+
                     <!-- ADMIN: REKAP ABSENSI -->
                     <div x-show="role === 'admin' && activeTab === 'rekap-absen'" class="bg-white p-6 rounded-lg shadow space-y-4">
                         <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Absensi Harian</h2>
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Kontrak</th><th class="p-3">Jabatan</th><th class="p-3">Datang</th><th class="p-3">Foto Datang</th><th class="p-3">Pulang</th><th class="p-3">Foto Pulang</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Datang</th>
+                                        <th class="p-3">Foto Datang</th>
+                                        <th class="p-3">Pulang</th>
+                                        <th class="p-3">Foto Pulang</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="rec in filteredAbsen" :key="rec.key">
                                         <tr class="border-b hover:bg-gray-50 align-middle">
@@ -219,10 +330,27 @@
                                             <td class="p-3" x-text="rec.kontrak"></td>
                                             <td class="p-3" x-text="rec.jabatan"></td>
                                             <td class="p-3 text-xs text-blue-600" x-text="rec.timeDatang"></td>
-                                            <td class="p-3"><template x-if="rec.photoDatang && rec.photoDatang !== '-'"><a :href="rec.photoDatang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template><template x-if="!rec.photoDatang || rec.photoDatang === '-'">-</template></td>
+
+                                            <td class="p-3">
+                                                <template x-if="rec.photoDatang && rec.photoDatang !== '-'">
+                                                    <a :href="rec.photoDatang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a>
+                                                </template>
+                                                <template x-if="!rec.photoDatang || rec.photoDatang === '-'">-</template>
+                                            </td>
+
                                             <td class="p-3 text-xs text-blue-600" x-text="rec.timePulang"></td>
-                                            <td class="p-3"><template x-if="rec.photoPulang && rec.photoPulang !== '-'"><a :href="rec.photoPulang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template><template x-if="!rec.photoPulang || rec.photoPulang === '-'">-</template></td>
-                                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span></td>
+
+                                            <td class="p-3">
+                                                <template x-if="rec.photoPulang && rec.photoPulang !== '-'">
+                                                    <a :href="rec.photoPulang" target="_blank" class="text-blue-600 underline text-xs">Lihat</a>
+                                                </template>
+                                                <template x-if="!rec.photoPulang || rec.photoPulang === '-'">-</template>
+                                            </td>
+
+                                            <td class="p-3">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
+                                            </td>
+
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('absen', rec.rowIndex, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
                                                 <button @click="updateStatus('absen', rec.rowIndex, 'Rejected')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Reject</button>
@@ -234,12 +362,26 @@
                         </div>
                     </div>
 
+
                     <!-- ADMIN: REKAP PARKIR -->
                     <div x-show="role === 'admin' && activeTab === 'rekap-parkir'" class="bg-white p-6 rounded-lg shadow space-y-4">
                         <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Reimburse Parkir</h2>
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Kontrak</th><th class="p-3">Jabatan</th><th class="p-3">Foto Karcis</th><th class="p-3">Nominal (Rp)</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Kontrak</th>
+                                        <th class="p-3">Jabatan</th>
+                                        <th class="p-3">Foto Karcis</th>
+                                        <th class="p-3">Nominal (Rp)</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="row in filteredCloud('parkir')" :key="row.index">
                                         <tr class="border-b hover:bg-gray-50">
@@ -247,9 +389,22 @@
                                             <td class="p-3 font-medium" x-text="row.data[1]"></td>
                                             <td class="p-3" x-text="row.data[2]"></td>
                                             <td class="p-3" x-text="row.data[3]"></td>
-                                            <td class="p-3"><template x-if="row.data[4] && row.data[4] !== '-'"><a :href="row.data[4]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template></td>
-                                            <td class="p-3"><input type="number" x-model.number="row.data[5]" @change="updateStatus('parkir', row.index, null, row.data[5])" class="border rounded px-2 py-1 w-24 text-sm font-bold"></td>
-                                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[6])" x-text="row.data[6]"></span></td>
+
+                                            <td class="p-3">
+                                                <template x-if="row.data[4] && row.data[4] !== '-'">
+                                                    <a :href="row.data[4]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a>
+                                                </template>
+                                            </td>
+
+                                            <!-- ADMIN MASIH BOLEH MENGUBAH NOMINAL -->
+                                            <td class="p-3">
+                                                <input type="number" x-model.number="row.data[5]" @change="updateStatus('parkir', row.index, null, row.data[5])" class="border rounded px-2 py-1 w-24 text-sm font-bold">
+                                            </td>
+
+                                            <td class="p-3">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[6])" x-text="row.data[6]"></span>
+                                            </td>
+
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('parkir', row.index, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
                                                 <button @click="updateStatus('parkir', row.index, 'Rejected')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Reject</button>
@@ -261,12 +416,26 @@
                         </div>
                     </div>
 
+
                     <!-- ADMIN: REKAP GEDUNG -->
                     <div x-show="role === 'admin' && activeTab === 'rekap-gedung'" class="bg-white p-6 rounded-lg shadow space-y-4">
                         <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Kirim ke Gedung</h2>
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Gedung & Lantai</th><th class="p-3">Customer</th><th class="p-3">Sesi</th><th class="p-3">Foto</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Gedung & Lantai</th>
+                                        <th class="p-3">Customer</th>
+                                        <th class="p-3">Sesi</th>
+                                        <th class="p-3">Foto</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="row in filteredCloud('gedung')" :key="row.index">
                                         <tr class="border-b hover:bg-gray-50">
@@ -275,8 +444,17 @@
                                             <td class="p-3" x-text="row.data[4]"></td>
                                             <td class="p-3" x-text="row.data[5]"></td>
                                             <td class="p-3 text-blue-600 font-semibold" x-text="row.data[6]"></td>
-                                            <td class="p-3"><template x-if="row.data[7] && row.data[7] !== '-'"><a :href="row.data[7]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template></td>
-                                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[8])" x-text="row.data[8]"></span></td>
+
+                                            <td class="p-3">
+                                                <template x-if="row.data[7] && row.data[7] !== '-'">
+                                                    <a :href="row.data[7]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a>
+                                                </template>
+                                            </td>
+
+                                            <td class="p-3">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[8])" x-text="row.data[8]"></span>
+                                            </td>
+
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('gedung', row.index, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
                                                 <button @click="updateStatus('gedung', row.index, 'Rejected')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Reject</button>
@@ -288,12 +466,25 @@
                         </div>
                     </div>
 
+
                     <!-- ADMIN: REKAP ESTAFET -->
                     <div x-show="role === 'admin' && activeTab === 'rekap-estafet'" class="bg-white p-6 rounded-lg shadow space-y-4">
                         <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Estafet Paket</h2>
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Area</th><th class="p-3">Alasan</th><th class="p-3">Foto</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Area</th>
+                                        <th class="p-3">Alasan</th>
+                                        <th class="p-3">Foto</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="row in filteredCloud('estafet')" :key="row.index">
                                         <tr class="border-b hover:bg-gray-50">
@@ -301,8 +492,17 @@
                                             <td class="p-3 font-medium" x-text="row.data[1]"></td>
                                             <td class="p-3 text-blue-600 font-semibold" x-text="row.data[4]"></td>
                                             <td class="p-3" x-text="row.data[5]"></td>
-                                            <td class="p-3"><template x-if="row.data[6] && row.data[6] !== '-'"><a :href="row.data[6]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template></td>
-                                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[7])" x-text="row.data[7]"></span></td>
+
+                                            <td class="p-3">
+                                                <template x-if="row.data[6] && row.data[6] !== '-'">
+                                                    <a :href="row.data[6]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a>
+                                                </template>
+                                            </td>
+
+                                            <td class="p-3">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[7])" x-text="row.data[7]"></span>
+                                            </td>
+
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('estafet', row.index, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
                                                 <button @click="updateStatus('estafet', row.index, 'Rejected')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Reject</button>
@@ -314,12 +514,27 @@
                         </div>
                     </div>
 
+
                     <!-- ADMIN: REKAP JARAK -->
                     <div x-show="role === 'admin' && activeTab === 'rekap-jarak'" class="bg-white p-6 rounded-lg shadow space-y-4">
                         <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Jarak Jauh</h2>
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Sesi</th><th class="p-3">Cust Terjauh</th><th class="p-3">Jarak</th><th class="p-3">Box</th><th class="p-3">Bukti</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Sesi</th>
+                                        <th class="p-3">Cust Terjauh</th>
+                                        <th class="p-3">Jarak</th>
+                                        <th class="p-3">Box</th>
+                                        <th class="p-3">Bukti</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="row in filteredCloud('jarak')" :key="row.index">
                                         <tr class="border-b hover:bg-gray-50">
@@ -328,9 +543,23 @@
                                             <td class="p-3 text-blue-600 font-semibold" x-text="row.data[4]"></td>
                                             <td class="p-3" x-text="row.data[5]"></td>
                                             <td class="p-3 font-bold" x-text="row.data[6] + ' KM'"></td>
-                                            <td class="p-3"><template x-if="row.data[7] && row.data[7] !== '-'"><a :href="row.data[7]" target="_blank" class="text-blue-600 underline text-xs">Box</a></template></td>
-                                            <td class="p-3"><template x-if="row.data[8] && row.data[8] !== '-'"><a :href="row.data[8]" target="_blank" class="text-blue-600 underline text-xs">Bukti</a></template></td>
-                                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[9])" x-text="row.data[9]"></span></td>
+
+                                            <td class="p-3">
+                                                <template x-if="row.data[7] && row.data[7] !== '-'">
+                                                    <a :href="row.data[7]" target="_blank" class="text-blue-600 underline text-xs">Box</a>
+                                                </template>
+                                            </td>
+
+                                            <td class="p-3">
+                                                <template x-if="row.data[8] && row.data[8] !== '-'">
+                                                    <a :href="row.data[8]" target="_blank" class="text-blue-600 underline text-xs">Bukti</a>
+                                                </template>
+                                            </td>
+
+                                            <td class="p-3">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[9])" x-text="row.data[9]"></span>
+                                            </td>
+
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('jarak', row.index, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
                                                 <button @click="updateStatus('jarak', row.index, 'Rejected')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Reject</button>
@@ -342,20 +571,41 @@
                         </div>
                     </div>
 
+
                     <!-- ADMIN: REKAP PICKUP -->
                     <div x-show="role === 'admin' && activeTab === 'rekap-pickup'" class="bg-white p-6 rounded-lg shadow space-y-4">
                         <h2 class="text-lg font-bold text-gray-800">Rekapitulasi: Ambil Barang</h2>
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead><tr class="bg-gray-50 border-b"><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Deskripsi</th><th class="p-3">Foto</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr></thead>
+                                <thead>
+                                    <tr class="bg-gray-50 border-b">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Deskripsi</th>
+                                        <th class="p-3">Foto</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Aksi</th>
+                                    </tr>
+                                </thead>
+
                                 <tbody>
                                     <template x-for="row in filteredCloud('ambil barang')" :key="row.index">
                                         <tr class="border-b hover:bg-gray-50">
                                             <td class="p-3" x-text="row.data[0]"></td>
                                             <td class="p-3 font-medium" x-text="row.data[1]"></td>
                                             <td class="p-3" x-text="row.data[4]"></td>
-                                            <td class="p-3"><template x-if="row.data[5] && row.data[5] !== '-'"><a :href="row.data[5]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template></td>
-                                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[6])" x-text="row.data[6]"></span></td>
+
+                                            <td class="p-3">
+                                                <template x-if="row.data[5] && row.data[5] !== '-'">
+                                                    <a :href="row.data[5]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a>
+                                                </template>
+                                            </td>
+
+                                            <td class="p-3">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold" :class="statusClass(row.data[6])" x-text="row.data[6]"></span>
+                                            </td>
+
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('ambil barang', row.index, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
                                                 <button @click="updateStatus('ambil barang', row.index, 'Rejected')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Reject</button>
@@ -367,11 +617,12 @@
                         </div>
                     </div>
 
-                    <!-- KURIR: ABSENSI (flow baru: 1 tombol, auto datang/pulang) -->
+
+                    <!-- KURIR: ABSENSI -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-absen'" class="space-y-4 max-w-lg">
                         <div class="bg-white p-6 rounded-lg shadow space-y-4">
                             <h2 class="text-lg font-bold text-gray-800">Absensi Harian</h2>
-                            <p class="text-xs text-gray-500">Absen pertama hari ini otomatis tercatat sebagai <b>Datang</b>, absen kedua otomatis sebagai <b>Pulang</b>.</p>
+                            <p class="text-xs text-gray-500">Absen pertama hari ini otomatis tercatat sebagai <b>Datang</b>, absen kedua otomatis sebagai <b>Pulang</b>. Setelah itu tidak bisa absen lagi.</p>
 
                             <div x-show="absenState === 'idle'">
                                 <button @click="mulaiAbsen()" class="w-full bg-blue-600 text-white py-3 rounded text-sm font-semibold hover:bg-blue-700">🎥 Mulai Absen (Nyalakan Kamera)</button>
@@ -384,172 +635,280 @@
 
                             <div x-show="absenState === 'captured' || absenState === 'sending'">
                                 <img :src="absenForm.capturedImage" class="w-full h-56 rounded object-cover border">
+
                                 <div class="grid grid-cols-2 gap-2 mt-2">
                                     <button type="button" @click="ulangiFoto()" :disabled="absenState === 'sending'" class="bg-yellow-600 text-white py-2 rounded text-xs font-semibold disabled:opacity-50">🔄 Ulangi</button>
+
                                     <button type="button" @click="kirimAbsen()" :disabled="absenState === 'sending'" class="bg-green-600 text-white py-2 rounded text-xs font-semibold disabled:opacity-50">
                                         <span x-text="absenState === 'sending' ? 'Mengirim...' : '✅ Kirim Absensi'"></span>
                                     </button>
                                 </div>
                             </div>
+
                             <canvas id="snapshotCanvas" class="hidden"></canvas>
                         </div>
 
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3 text-sm">Riwayat Absensi Anda</h3>
+
                             <div class="space-y-2">
                                 <template x-for="rec in myAbsenHistory" :key="rec.date">
                                     <div class="border rounded p-3 text-xs flex justify-between items-center">
                                         <div>
                                             <div class="font-semibold text-gray-700" x-text="rec.date"></div>
-                                            <div class="text-gray-500">Datang: <span x-text="rec.timeDatang"></span> &middot; Pulang: <span x-text="rec.timePulang"></span></div>
+                                            <div class="text-gray-500">
+                                                Datang: <span x-text="rec.timeDatang"></span>
+                                                &middot;
+                                                Pulang: <span x-text="rec.timePulang"></span>
+                                            </div>
                                         </div>
+
                                         <span class="px-2 py-1 rounded font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
                                     </div>
                                 </template>
+
                                 <p x-show="myAbsenHistory.length === 0" class="text-xs text-gray-400">Belum ada riwayat absensi.</p>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- KURIR: PARKIR -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-parkir'" class="space-y-4 max-w-lg">
                         <div class="bg-white p-6 rounded-lg shadow space-y-4">
                             <h2 class="text-lg font-bold text-gray-800">Form Reimburse Parkir</h2>
+
                             <form @submit.prevent="submitParkir()" class="space-y-4">
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label><input type="date" x-model="parkirForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp)</label><input type="number" x-model="parkirForm.nominal" required class="w-full border rounded px-3 py-2 text-sm"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Foto Karcis</label><input type="file" accept="image/*" @change="handleFileUpload($event, 'parkir')" required class="w-full border rounded px-3 py-2 text-sm"></div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                    <input type="date" x-model="parkirForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Parkir</label>
+                                    <input type="text" value="Rp 2.000" readonly class="w-full border rounded px-3 py-2 text-sm bg-gray-100 font-bold text-gray-700 cursor-not-allowed">
+                                    <p class="text-xs text-gray-500 mt-1">Nominal reimburse parkir ditetapkan Rp2.000.</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Foto Karcis</label>
+                                    <input type="file" accept="image/*" @change="handleFileUpload($event, 'parkir')" required class="w-full border rounded px-3 py-2 text-sm">
+                                </div>
+
                                 <button type="submit" :disabled="parkirSubmitting" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold disabled:opacity-60" x-text="parkirSubmitting ? 'Mengirim...' : 'Kirim Klaim Parkir'"></button>
                             </form>
                         </div>
+
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3 text-sm">Riwayat Klaim Anda</h3>
+
                             <div class="space-y-2">
                                 <template x-for="(rec, i) in myParkirHistory" :key="i">
                                     <div class="border rounded p-3 text-xs flex justify-between items-center">
-                                        <div><div class="font-semibold text-gray-700" x-text="rec.date"></div><div class="text-gray-500">Rp <span x-text="rec.nominal"></span></div></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-700" x-text="rec.date"></div>
+                                            <div class="text-gray-500">Rp <span x-text="rec.nominal"></span></div>
+                                        </div>
+
                                         <span class="px-2 py-1 rounded font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
                                     </div>
                                 </template>
+
                                 <p x-show="myParkirHistory.length === 0" class="text-xs text-gray-400">Belum ada klaim parkir.</p>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- KURIR: GEDUNG -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-gedung'" class="space-y-4 max-w-lg">
                         <div class="bg-white p-6 rounded-lg shadow space-y-4">
                             <h2 class="text-lg font-bold text-gray-800">Form Pengiriman ke Gedung</h2>
+
                             <form @submit.prevent="submitGedung()" class="space-y-4">
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label><input type="date" x-model="gedungForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Gedung & Lantai</label><input type="text" x-model="gedungForm.gedungLantai" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer</label><input type="text" x-model="gedungForm.namaCust" required class="w-full border rounded px-3 py-2 text-sm"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Sesi</label><select x-model="gedungForm.sesi" class="w-full border rounded px-3 py-2 text-sm"><option value="Lunch">Lunch</option><option value="Dinner">Dinner</option></select></div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sesi</label>
+                                    <select x-model="gedungForm.sesi" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Lunch">Lunch</option>
+                                        <option value="Dinner">Dinner</option>
+                                    </select>
+                                </div>
+
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti</label><input type="file" accept="image/*" @change="handleFileUpload($event, 'gedung')" required class="w-full border rounded px-3 py-2 text-sm"></div>
+
                                 <button type="submit" :disabled="gedungSubmitting" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold disabled:opacity-60" x-text="gedungSubmitting ? 'Mengirim...' : 'Kirim Laporan Gedung'"></button>
                             </form>
                         </div>
+
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3 text-sm">Riwayat Laporan Anda</h3>
+
                             <div class="space-y-2">
                                 <template x-for="(rec, i) in myGedungHistory" :key="i">
                                     <div class="border rounded p-3 text-xs flex justify-between items-center">
-                                        <div><div class="font-semibold text-gray-700" x-text="rec.date"></div><div class="text-gray-500" x-text="rec.gedungLantai + ' - ' + rec.customer + ' (' + rec.sesi + ')'"></div></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-700" x-text="rec.date"></div>
+                                            <div class="text-gray-500" x-text="rec.gedungLantai + ' - ' + rec.customer + ' (' + rec.sesi + ')'"></div>
+                                        </div>
+
                                         <span class="px-2 py-1 rounded font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
                                     </div>
                                 </template>
+
                                 <p x-show="myGedungHistory.length === 0" class="text-xs text-gray-400">Belum ada laporan gedung.</p>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- KURIR: ESTAFET -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-estafet'" class="space-y-4 max-w-lg">
                         <div class="bg-white p-6 rounded-lg shadow space-y-4">
                             <h2 class="text-lg font-bold text-gray-800">Form Estafet Paket</h2>
+
                             <form @submit.prevent="submitEstafet()" class="space-y-4">
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label><input type="date" x-model="estafetForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Estafet Area</label><select x-model="estafetForm.estafetArea" required class="w-full border rounded px-3 py-2 text-sm"><option value="">Pilih Area</option><template x-for="area in (myData.estafetAreaList || [])"><option :value="area" x-text="area"></option></template></select></div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Estafet Area</label>
+                                    <select x-model="estafetForm.estafetArea" required class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="">Pilih Area</option>
+                                        <template x-for="area in (myData.estafetAreaList || [])">
+                                            <option :value="area" x-text="area"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Alasan</label><textarea x-model="estafetForm.alasan" required class="w-full border rounded px-3 py-2 text-sm"></textarea></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Foto</label><input type="file" accept="image/*" @change="handleFileUpload($event, 'estafet')" required class="w-full border rounded px-3 py-2 text-sm"></div>
+
                                 <button type="submit" :disabled="estafetSubmitting" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold disabled:opacity-60" x-text="estafetSubmitting ? 'Mengirim...' : 'Kirim Estafet'"></button>
                             </form>
                         </div>
+
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3 text-sm">Riwayat Estafet Anda</h3>
+
                             <div class="space-y-2">
                                 <template x-for="(rec, i) in myEstafetHistory" :key="i">
                                     <div class="border rounded p-3 text-xs flex justify-between items-center">
-                                        <div><div class="font-semibold text-gray-700" x-text="rec.date"></div><div class="text-gray-500" x-text="rec.area"></div></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-700" x-text="rec.date"></div>
+                                            <div class="text-gray-500" x-text="rec.area"></div>
+                                        </div>
+
                                         <span class="px-2 py-1 rounded font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
                                     </div>
                                 </template>
+
                                 <p x-show="myEstafetHistory.length === 0" class="text-xs text-gray-400">Belum ada estafet.</p>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- KURIR: JARAK -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-jarak'" class="space-y-4 max-w-lg">
                         <div class="bg-white p-6 rounded-lg shadow space-y-4">
                             <h2 class="text-lg font-bold text-gray-800">Form Pengiriman Jarak Jauh</h2>
+
                             <form @submit.prevent="submitJarak()" class="space-y-4">
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label><input type="date" x-model="jarakForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Sesi</label><select x-model="jarakForm.sesi" class="w-full border rounded px-3 py-2 text-sm"><option value="Lunch">Lunch</option><option value="Dinner">Dinner</option></select></div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sesi</label>
+                                    <select x-model="jarakForm.sesi" class="w-full border rounded px-3 py-2 text-sm">
+                                        <option value="Lunch">Lunch</option>
+                                        <option value="Dinner">Dinner</option>
+                                    </select>
+                                </div>
+
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Cust Terjauh</label><input type="text" x-model="jarakForm.custTerjauh" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Jarak (KM)</label><input type="number" x-model="jarakForm.jarak" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Foto Box</label><input type="file" accept="image/*" @change="handleFileUpload($event, 'jarakBox')" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti</label><input type="file" accept="image/*" @change="handleFileUpload($event, 'jarakBukti')" required class="w-full border rounded px-3 py-2 text-sm"></div>
+
                                 <button type="submit" :disabled="jarakSubmitting" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold disabled:opacity-60" x-text="jarakSubmitting ? 'Mengirim...' : 'Kirim Jarak'"></button>
                             </form>
                         </div>
+
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3 text-sm">Riwayat Jarak Jauh Anda</h3>
+
                             <div class="space-y-2">
                                 <template x-for="(rec, i) in myJarakHistory" :key="i">
                                     <div class="border rounded p-3 text-xs flex justify-between items-center">
-                                        <div><div class="font-semibold text-gray-700" x-text="rec.date"></div><div class="text-gray-500" x-text="rec.cust + ' - ' + rec.jarak + ' KM'"></div></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-700" x-text="rec.date"></div>
+                                            <div class="text-gray-500" x-text="rec.cust + ' - ' + rec.jarak + ' KM'"></div>
+                                        </div>
+
                                         <span class="px-2 py-1 rounded font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
                                     </div>
                                 </template>
+
                                 <p x-show="myJarakHistory.length === 0" class="text-xs text-gray-400">Belum ada data jarak jauh.</p>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- KURIR: PICKUP -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-pickup'" class="space-y-4 max-w-lg">
                         <div class="bg-white p-6 rounded-lg shadow space-y-4">
                             <h2 class="text-lg font-bold text-gray-800">Form Ambil Barang</h2>
+
                             <form @submit.prevent="submitPickup()" class="space-y-4">
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label><input type="date" x-model="pickupForm.tanggal" required class="w-full border rounded px-3 py-2 text-sm"></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label><textarea x-model="pickupForm.deskripsi" required class="w-full border rounded px-3 py-2 text-sm"></textarea></div>
                                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Foto Barang</label><input type="file" accept="image/*" @change="handleFileUpload($event, 'pickup')" required class="w-full border rounded px-3 py-2 text-sm"></div>
+
                                 <button type="submit" :disabled="pickupSubmitting" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold disabled:opacity-60" x-text="pickupSubmitting ? 'Mengirim...' : 'Kirim Pickup'"></button>
                             </form>
                         </div>
+
+
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="font-semibold text-gray-700 mb-3 text-sm">Riwayat Pickup Anda</h3>
+
                             <div class="space-y-2">
                                 <template x-for="(rec, i) in myPickupHistory" :key="i">
                                     <div class="border rounded p-3 text-xs flex justify-between items-center">
-                                        <div><div class="font-semibold text-gray-700" x-text="rec.date"></div><div class="text-gray-500" x-text="rec.deskripsi"></div></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-700" x-text="rec.date"></div>
+                                            <div class="text-gray-500" x-text="rec.deskripsi"></div>
+                                        </div>
+
                                         <span class="px-2 py-1 rounded font-semibold" :class="statusClass(rec.status)" x-text="rec.status"></span>
                                     </div>
                                 </template>
+
                                 <p x-show="myPickupHistory.length === 0" class="text-xs text-gray-400">Belum ada data pickup.</p>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- KURIR: GANTI PASSWORD -->
                     <div x-show="role === 'kurir' && activeTab === 'kurir-password'" class="bg-white p-6 rounded-lg shadow space-y-4 max-w-lg">
                         <h2 class="text-lg font-bold text-gray-800">Ganti Password</h2>
+
                         <form @submit.prevent="gantiPassword()" class="space-y-4">
                             <div><label class="block text-sm font-medium text-gray-700 mb-1">Password Lama</label><input type="password" x-model="gantiPasswordForm.lama" required class="w-full border rounded px-3 py-2 text-sm"></div>
                             <div><label class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label><input type="password" x-model="gantiPasswordForm.baru" required class="w-full border rounded px-3 py-2 text-sm"></div>
                             <div><label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label><input type="password" x-model="gantiPasswordForm.konfirmasi" required class="w-full border rounded px-3 py-2 text-sm"></div>
+
                             <p class="text-xs font-semibold" :class="gantiPasswordMsg.startsWith('✅') ? 'text-green-600' : 'text-red-500'" x-text="gantiPasswordMsg" x-show="gantiPasswordMsg"></p>
+
                             <button type="submit" :disabled="gantiPasswordSubmitting" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold disabled:opacity-60" x-text="gantiPasswordSubmitting ? 'Memproses...' : 'Simpan Password Baru'"></button>
                         </form>
                     </div>
@@ -558,6 +917,7 @@
             </div>
         </div>
     </template>
+
 
     <script>
         function app() {
@@ -568,7 +928,7 @@
                 loginError: '',
                 loginLoading: false,
                 syncInterval: null,
-                gasUrl: 'https://script.google.com/macros/s/AKfycbwz7Qo8EEfMj4sfCKC1SVAX_pZ9-TH8NgQJ1rpEUJI95fBTK_U4aMkzCwX8B1cz8-gCtg/exec',
+                gasUrl: 'https://script.google.com/macros/s/AKfycbyKe7J6Ur1r1ivQKMlmEWMkOKknxwWxyRwiYjBBMqsfONZ_kGiEqda6kI6r6WGDl_zLDw/exec',
 
                 role: '',
                 activeTab: 'admin-kurir',
@@ -576,429 +936,1251 @@
 
                 filters: { tanggal: '', nama: '', kontrak: '', jabatan: '', status: '' },
 
-                cloudSheets: { absen: [], parkir: [], gedung: [], estafet: [], jarak: [], 'ambil barang': [], sdm: [], hc: [] },
-                myData: { absen: [], parkir: [], gedung: [], estafet: [], jarak: [], 'ambil barang': [], jabatanList: [], estafetAreaList: [] },
+                cloudSheets: {
+                    absen: [],
+                    parkir: [],
+                    gedung: [],
+                    estafet: [],
+                    jarak: [],
+                    'ambil barang': [],
+                    sdm: [],
+                    hc: []
+                },
+
+                myData: {
+                    absen: [],
+                    parkir: [],
+                    gedung: [],
+                    estafet: [],
+                    jarak: [],
+                    'ambil barang': [],
+                    jabatanList: [],
+                    estafetAreaList: []
+                },
 
                 jabatanForm: { name: '' },
                 estafetAreaForm: { name: '' },
-                kurirForm: { name: '', username: '', password: '', kontrak: 'Full Time', jabatan: '' },
+
+                kurirForm: {
+                    name: '',
+                    username: '',
+                    password: '',
+                    kontrak: 'Full Time',
+                    jabatan: ''
+                },
+
                 kurirSaving: false,
                 kurirFormError: '',
 
-                absenForm: { capturedImage: null },
-                absenState: 'idle', // idle | live | captured | sending
+                absenForm: {
+                    capturedImage: null
+                },
 
-                parkirForm: { tanggal: '', nominal: 2000, photo: null },
+                absenState: 'idle',
+
+                parkirForm: {
+                    tanggal: '',
+                    nominal: 2000,
+                    photo: null
+                },
+
                 parkirSubmitting: false,
-                gedungForm: { tanggal: '', gedungLantai: '', namaCust: '', sesi: 'Lunch', photo: null },
+
+                gedungForm: {
+                    tanggal: '',
+                    gedungLantai: '',
+                    namaCust: '',
+                    sesi: 'Lunch',
+                    photo: null
+                },
+
                 gedungSubmitting: false,
-                estafetForm: { tanggal: '', estafetArea: '', alasan: '', photo: null },
+
+                estafetForm: {
+                    tanggal: '',
+                    estafetArea: '',
+                    alasan: '',
+                    photo: null
+                },
+
                 estafetSubmitting: false,
-                jarakForm: { tanggal: '', sesi: 'Lunch', custTerjauh: '', jarak: '', photoBox: '', photoBukti: '' },
+
+                jarakForm: {
+                    tanggal: '',
+                    sesi: 'Lunch',
+                    custTerjauh: '',
+                    jarak: '',
+                    photoBox: '',
+                    photoBukti: ''
+                },
+
                 jarakSubmitting: false,
-                pickupForm: { tanggal: '', deskripsi: '', photo: null },
+
+                pickupForm: {
+                    tanggal: '',
+                    deskripsi: '',
+                    photo: null
+                },
+
                 pickupSubmitting: false,
 
-                gantiPasswordForm: { lama: '', baru: '', konfirmasi: '' },
+                gantiPasswordForm: {
+                    lama: '',
+                    baru: '',
+                    konfirmasi: ''
+                },
+
                 gantiPasswordMsg: '',
                 gantiPasswordSubmitting: false,
 
-                // ---------- HELPERS ----------
+
+                /* ---------- HELPERS ---------- */
+
                 statusClass(status) {
                     if (status === 'Approved') return 'bg-green-100 text-green-800';
                     if (status === 'Rejected') return 'bg-red-100 text-red-800';
                     return 'bg-yellow-100 text-yellow-800';
                 },
 
+
                 async post(payload) {
-                    const res = await fetch(this.gasUrl, { method: 'POST', body: JSON.stringify(payload) });
+                    const res = await fetch(this.gasUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+
                     return res.json();
                 },
 
-                // ---------- COMPUTED (ADMIN) ----------
+
+                /* ---------- COMPUTED ADMIN ---------- */
+
                 get jabatanList() {
-                    return (this.cloudSheets.hc || []).slice(1).filter(r => r[0] === 'jabatan').map(r => r[1]);
+                    return (this.cloudSheets.hc || [])
+                        .slice(1)
+                        .filter(r => r[0] === 'jabatan')
+                        .map(r => r[1]);
                 },
+
+
                 get estafetAreaListAdmin() {
-                    return (this.cloudSheets.hc || []).slice(1).filter(r => r[0] === 'area').map(r => r[1]);
+                    return (this.cloudSheets.hc || [])
+                        .slice(1)
+                        .filter(r => r[0] === 'area')
+                        .map(r => r[1]);
                 },
+
+
                 get sdmList() {
-                    return (this.cloudSheets.sdm || []).slice(1).map(r => ({ username: r[0], name: r[1], password: r[2], kontrak: r[3], jabatan: r[4] }));
+                    return (this.cloudSheets.sdm || [])
+                        .slice(1)
+                        .map(r => ({
+                            username: r[0],
+                            name: r[1],
+                            password: r[2],
+                            kontrak: r[3],
+                            jabatan: r[4]
+                        }));
                 },
 
-                // ---------- COMPUTED (KURIR RIWAYAT) ----------
+
+                /* ---------- COMPUTED KURIR RIWAYAT ---------- */
+
                 get myAbsenHistory() {
-                    return (this.myData.absen || []).slice(1).map(r => ({ date: r[0], timeDatang: r[4] || '-', timePulang: r[6] || '-', status: r[8] })).reverse();
-                },
-                get myParkirHistory() {
-                    return (this.myData.parkir || []).slice(1).map(r => ({ date: r[0], nominal: r[5], status: r[6] })).reverse();
-                },
-                get myGedungHistory() {
-                    return (this.myData.gedung || []).slice(1).map(r => ({ date: r[0], gedungLantai: r[4], customer: r[5], sesi: r[6], status: r[8] })).reverse();
-                },
-                get myEstafetHistory() {
-                    return (this.myData.estafet || []).slice(1).map(r => ({ date: r[0], area: r[4], status: r[7] })).reverse();
-                },
-                get myJarakHistory() {
-                    return (this.myData.jarak || []).slice(1).map(r => ({ date: r[0], cust: r[5], jarak: r[6], status: r[9] })).reverse();
-                },
-                get myPickupHistory() {
-                    return (this.myData['ambil barang'] || []).slice(1).map(r => ({ date: r[0], deskripsi: r[4], status: r[6] })).reverse();
+                    return (this.myData.absen || [])
+                        .slice(1)
+                        .filter(r => r[0] && r[1])
+                        .map(r => ({
+                            date: r[0],
+                            timeDatang: r[4] || '-',
+                            timePulang: r[6] || '-',
+                            status: r[8] || 'Pending'
+                        }))
+                        .reverse();
                 },
 
-                // ---------- REKAP ADMIN (FILTER) ----------
+
+                get myParkirHistory() {
+                    return (this.myData.parkir || [])
+                        .slice(1)
+                        .filter(r => r[0] && r[1])
+                        .map(r => ({
+                            date: r[0],
+                            nominal: r[5],
+                            status: r[6] || 'Pending'
+                        }))
+                        .reverse();
+                },
+
+
+                get myGedungHistory() {
+                    return (this.myData.gedung || [])
+                        .slice(1)
+                        .filter(r => r[0] && r[1])
+                        .map(r => ({
+                            date: r[0],
+                            gedungLantai: r[4],
+                            customer: r[5],
+                            sesi: r[6],
+                            status: r[8] || 'Pending'
+                        }))
+                        .reverse();
+                },
+
+
+                get myEstafetHistory() {
+                    return (this.myData.estafet || [])
+                        .slice(1)
+                        .filter(r => r[0] && r[1])
+                        .map(r => ({
+                            date: r[0],
+                            area: r[4],
+                            status: r[7] || 'Pending'
+                        }))
+                        .reverse();
+                },
+
+
+                get myJarakHistory() {
+                    return (this.myData.jarak || [])
+                        .slice(1)
+                        .filter(r => r[0] && r[1])
+                        .map(r => ({
+                            date: r[0],
+                            cust: r[5],
+                            jarak: r[6],
+                            status: r[9] || 'Pending'
+                        }))
+                        .reverse();
+                },
+
+
+                get myPickupHistory() {
+                    return (this.myData['ambil barang'] || [])
+                        .slice(1)
+                        .filter(r => r[0] && r[1])
+                        .map(r => ({
+                            date: r[0],
+                            deskripsi: r[4],
+                            status: r[6] || 'Pending'
+                        }))
+                        .reverse();
+                },
+
+
+                /* ---------- REKAP ADMIN ---------- */
+
                 filteredCloud(sheetName) {
                     let rows = this.cloudSheets[sheetName] || [];
+
                     if (rows.length <= 1) return [];
+
                     let result = [];
+
                     for (let i = 1; i < rows.length; i++) {
                         let r = rows[i];
-                        let tgl = r[0], nama = r[1], kontrak = r[2], jabatan = r[3], status = r[r.length - 1];
+                        let tgl = r[0];
+                        let nama = r[1];
+                        let kontrak = r[2];
+                        let jabatan = r[3];
+                        let status = r[r.length - 1];
+
                         if (this.filters.tanggal && tgl !== this.filters.tanggal) continue;
-                        if (this.filters.nama && !String(nama).toLowerCase().includes(this.filters.nama.toLowerCase())) continue;
+
+                        if (
+                            this.filters.nama &&
+                            !String(nama).toLowerCase().includes(this.filters.nama.toLowerCase())
+                        ) continue;
+
                         if (this.filters.kontrak && kontrak !== this.filters.kontrak) continue;
                         if (this.filters.jabatan && jabatan !== this.filters.jabatan) continue;
                         if (this.filters.status && status !== this.filters.status) continue;
-                        result.push({ index: i + 1, data: r });
+
+                        result.push({
+                            index: i + 1,
+                            data: r
+                        });
                     }
+
                     return result;
                 },
+
+
                 get filteredAbsen() {
                     let rows = this.cloudSheets.absen || [];
+
                     if (rows.length <= 1) return [];
+
                     let map = {};
+
                     for (let i = 1; i < rows.length; i++) {
                         let r = rows[i];
-                        let tgl = r[0], name = r[1], kontrak = r[2], jabatan = r[3];
+
+                        let tgl = r[0];
+                        let name = r[1];
+                        let kontrak = r[2];
+                        let jabatan = r[3];
+
                         let key = `${name}_${tgl}`;
-                        if (!map[key]) map[key] = { key, date: tgl, name, kontrak, jabatan, timeDatang: '-', photoDatang: '-', timePulang: '-', photoPulang: '-', status: 'Pending', rowIndex: i + 1 };
-                        if (r[4] && r[4] !== '-') { map[key].timeDatang = r[4]; map[key].photoDatang = r[5]; map[key].rowIndex = i + 1; }
-                        if (r[6] && r[6] !== '-') { map[key].timePulang = r[6]; map[key].photoPulang = r[7]; map[key].rowIndex = i + 1; }
-                        if (r[8]) map[key].status = r[8];
+
+                        if (!map[key]) {
+                            map[key] = {
+                                key,
+                                date: tgl,
+                                name,
+                                kontrak,
+                                jabatan,
+                                timeDatang: '-',
+                                photoDatang: '-',
+                                timePulang: '-',
+                                photoPulang: '-',
+                                status: 'Pending',
+                                rowIndex: i + 1
+                            };
+                        }
+
+                        if (r[4] && r[4] !== '-') {
+                            map[key].timeDatang = r[4];
+                            map[key].photoDatang = r[5];
+                            map[key].rowIndex = i + 1;
+                        }
+
+                        if (r[6] && r[6] !== '-') {
+                            map[key].timePulang = r[6];
+                            map[key].photoPulang = r[7];
+                            map[key].rowIndex = i + 1;
+                        }
+
+                        if (r[8]) {
+                            map[key].status = r[8];
+                        }
                     }
+
                     return Object.values(map).filter(rec => {
                         if (this.filters.tanggal && rec.date !== this.filters.tanggal) return false;
-                        if (this.filters.nama && !rec.name.toLowerCase().includes(this.filters.nama.toLowerCase())) return false;
+
+                        if (
+                            this.filters.nama &&
+                            !String(rec.name).toLowerCase().includes(this.filters.nama.toLowerCase())
+                        ) return false;
+
                         if (this.filters.kontrak && rec.kontrak !== this.filters.kontrak) return false;
                         if (this.filters.jabatan && rec.jabatan !== this.filters.jabatan) return false;
                         if (this.filters.status && rec.status !== this.filters.status) return false;
+
                         return true;
                     });
                 },
 
-                // ---------- LOGIN / LOGOUT ----------
+
+                /* ---------- LOGIN / LOGOUT ---------- */
+
                 async handleLogin() {
                     this.loginError = '';
                     this.loginLoading = true;
+
                     const payload = this.loginRole === 'admin'
-                        ? { action: 'login', role: 'admin', username: this.loginInput.username, password: this.loginInput.password }
-                        : { action: 'login', role: 'kurir', username: this.loginInput.kurirUsername, password: this.loginInput.kurirPassword };
+                        ? {
+                            action: 'login',
+                            role: 'admin',
+                            username: this.loginInput.username,
+                            password: this.loginInput.password
+                        }
+                        : {
+                            action: 'login',
+                            role: 'kurir',
+                            username: this.loginInput.kurirUsername,
+                            password: this.loginInput.kurirPassword
+                        };
+
                     try {
                         const result = await this.post(payload);
+
                         if (result.status === 'success') {
                             this.role = this.loginRole;
                             this.isLoggedIn = true;
+
                             if (this.role === 'admin') {
                                 this.activeTab = 'admin-kurir';
-                                this.fetchAdminData();
+                                await this.fetchAdminData();
                                 this.startSync(() => this.fetchAdminData());
                             } else {
                                 this.currentUser = result.user;
                                 this.activeTab = 'kurir-absen';
-                                this.fetchMyData();
+                                await this.fetchMyData();
                                 this.startSync(() => this.fetchMyData());
                             }
                         } else {
                             this.loginError = result.message || 'Login gagal';
                         }
+
                     } catch (err) {
+                        console.error(err);
                         this.loginError = 'Gagal terhubung ke server. Coba lagi.';
                     }
+
                     this.loginLoading = false;
                 },
 
+
                 logout() {
                     this.stopCamera();
-                    if (this.syncInterval) clearInterval(this.syncInterval);
+
+                    if (this.syncInterval) {
+                        clearInterval(this.syncInterval);
+                    }
+
                     this.isLoggedIn = false;
                     this.role = '';
                     this.currentUser = {};
                     this.activeTab = 'admin-kurir';
                     this.absenState = 'idle';
+                    this.absenForm.capturedImage = null;
                 },
 
+
                 startSync(fn) {
-                    if (this.syncInterval) clearInterval(this.syncInterval);
+                    if (this.syncInterval) {
+                        clearInterval(this.syncInterval);
+                    }
+
                     this.syncInterval = setInterval(fn, 15000);
                 },
 
+
                 changeTab(tab) {
-                    if (this.activeTab === 'kurir-absen' && tab !== 'kurir-absen') {
+                    if (
+                        this.activeTab === 'kurir-absen' &&
+                        tab !== 'kurir-absen'
+                    ) {
                         this.stopCamera();
                         this.absenState = 'idle';
                         this.absenForm.capturedImage = null;
                     }
+
                     this.activeTab = tab;
-                    if (this.role === 'admin' && tab.startsWith('rekap-')) this.fetchAdminData();
+
+                    if (
+                        this.role === 'admin' &&
+                        tab.startsWith('rekap-')
+                    ) {
+                        this.fetchAdminData();
+                    }
                 },
 
-                // ---------- FETCH (silent, tanpa loading blocking) ----------
+
+                /* ---------- FETCH ---------- */
+
                 async fetchAdminData() {
                     try {
-                        const res = await fetch(this.gasUrl + '?action=getData');
+                        const res = await fetch(
+                            this.gasUrl + '?action=getData'
+                        );
+
                         this.cloudSheets = await res.json();
-                    } catch (err) { console.error('Sync gagal:', err); }
-                },
-                async fetchMyData() {
-                    try {
-                        const res = await fetch(this.gasUrl + '?action=getMyData&name=' + encodeURIComponent(this.currentUser.name));
-                        this.myData = await res.json();
-                    } catch (err) { console.error('Sync gagal:', err); }
+
+                    } catch (err) {
+                        console.error('Sync gagal:', err);
+                    }
                 },
 
-                // ---------- KAMERA ----------
+
+                async fetchMyData() {
+                    try {
+                        const res = await fetch(
+                            this.gasUrl +
+                            '?action=getMyData&name=' +
+                            encodeURIComponent(this.currentUser.name)
+                        );
+
+                        this.myData = await res.json();
+
+                    } catch (err) {
+                        console.error('Sync gagal:', err);
+                    }
+                },
+
+
+                /* ---------- KAMERA ---------- */
+
                 stopCamera() {
                     const video = document.getElementById('cameraStream');
+
                     if (video && video.srcObject) {
-                        video.srcObject.getTracks().forEach(t => t.stop());
+                        video.srcObject
+                            .getTracks()
+                            .forEach(t => t.stop());
+
                         video.srcObject = null;
                     }
                 },
+
+
                 mulaiAbsen() {
                     this.absenState = 'live';
+
                     this.$nextTick(() => {
                         const video = document.getElementById('cameraStream');
-                        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                            .then(stream => { if (video) video.srcObject = stream; })
-                            .catch(err => { alert('Tidak bisa mengakses kamera.'); this.absenState = 'idle'; });
+
+                        navigator.mediaDevices.getUserMedia({
+                            video: true,
+                            audio: false
+                        })
+                        .then(stream => {
+                            if (video) {
+                                video.srcObject = stream;
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Tidak bisa mengakses kamera.');
+                            this.absenState = 'idle';
+                        });
                     });
                 },
+
+
                 ambilFoto() {
                     const video = document.getElementById('cameraStream');
                     const canvas = document.getElementById('snapshotCanvas');
+
                     if (video && canvas) {
                         canvas.width = video.videoWidth || 320;
                         canvas.height = video.videoHeight || 240;
-                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-                        this.absenForm.capturedImage = canvas.toDataURL('image/jpeg', 0.8);
+
+                        canvas
+                            .getContext('2d')
+                            .drawImage(
+                                video,
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
+
+                        this.absenForm.capturedImage =
+                            canvas.toDataURL('image/jpeg', 0.8);
                     }
+
                     this.stopCamera();
                     this.absenState = 'captured';
                 },
+
+
                 ulangiFoto() {
                     this.absenForm.capturedImage = null;
                     this.mulaiAbsen();
                 },
 
-                // ---------- UPLOAD FILE ----------
+
+                /* ---------- UPLOAD FILE ---------- */
+
                 handleFileUpload(event, type) {
                     const file = event.target.files[0];
+
                     if (!file) return;
+
                     const reader = new FileReader();
+
                     reader.onload = (e) => {
                         let res = e.target.result;
-                        if (type === 'parkir') this.parkirForm.photo = res;
-                        if (type === 'gedung') this.gedungForm.photo = res;
-                        if (type === 'estafet') this.estafetForm.photo = res;
-                        if (type === 'jarakBox') this.jarakForm.photoBox = res;
-                        if (type === 'jarakBukti') this.jarakForm.photoBukti = res;
-                        if (type === 'pickup') this.pickupForm.photo = res;
+
+                        if (type === 'parkir') {
+                            this.parkirForm.photo = res;
+                        }
+
+                        if (type === 'gedung') {
+                            this.gedungForm.photo = res;
+                        }
+
+                        if (type === 'estafet') {
+                            this.estafetForm.photo = res;
+                        }
+
+                        if (type === 'jarakBox') {
+                            this.jarakForm.photoBox = res;
+                        }
+
+                        if (type === 'jarakBukti') {
+                            this.jarakForm.photoBukti = res;
+                        }
+
+                        if (type === 'pickup') {
+                            this.pickupForm.photo = res;
+                        }
                     };
+
                     reader.readAsDataURL(file);
                 },
 
-                // ---------- MASTER: PEGAWAI (SDM) ----------
+
+                /* ---------- MASTER: PEGAWAI ---------- */
+
                 async saveKurir() {
                     this.kurirFormError = '';
-                    if (!this.kurirForm.name || !this.kurirForm.username || !this.kurirForm.password) return;
+
+                    if (
+                        !this.kurirForm.name ||
+                        !this.kurirForm.username ||
+                        !this.kurirForm.password
+                    ) {
+                        return;
+                    }
+
                     this.kurirSaving = true;
-                    const payload = { action: 'addPegawai', username: this.kurirForm.username.trim(), name: this.kurirForm.name.trim(), password: this.kurirForm.password, kontrak: this.kurirForm.kontrak, jabatan: this.kurirForm.jabatan || (this.jabatanList[0] || '') };
+
+                    const payload = {
+                        action: 'addPegawai',
+                        username: this.kurirForm.username.trim(),
+                        name: this.kurirForm.name.trim(),
+                        password: this.kurirForm.password,
+                        kontrak: this.kurirForm.kontrak,
+                        jabatan: this.kurirForm.jabatan ||
+                            (this.jabatanList[0] || '')
+                    };
+
                     try {
                         const result = await this.post(payload);
+
                         if (result.status === 'success') {
-                            if (!this.cloudSheets.sdm || this.cloudSheets.sdm.length === 0) this.cloudSheets.sdm = [['Username', 'Nama', 'Password', 'Kontrak', 'Jabatan']];
-                            this.cloudSheets.sdm.push([payload.username, payload.name, payload.password, payload.kontrak, payload.jabatan]);
-                            this.kurirForm = { name: '', username: '', password: '', kontrak: 'Full Time', jabatan: this.jabatanList[0] || '' };
+
+                            if (
+                                !this.cloudSheets.sdm ||
+                                this.cloudSheets.sdm.length === 0
+                            ) {
+                                this.cloudSheets.sdm = [
+                                    ['Username', 'Nama', 'Password', 'Kontrak', 'Jabatan']
+                                ];
+                            }
+
+                            this.cloudSheets.sdm.push([
+                                payload.username,
+                                payload.name,
+                                payload.password,
+                                payload.kontrak,
+                                payload.jabatan
+                            ]);
+
+                            this.kurirForm = {
+                                name: '',
+                                username: '',
+                                password: '',
+                                kontrak: 'Full Time',
+                                jabatan: this.jabatanList[0] || ''
+                            };
+
                         } else {
-                            this.kurirFormError = result.message || 'Gagal menambah pegawai';
+                            this.kurirFormError =
+                                result.message ||
+                                'Gagal menambah pegawai';
                         }
+
                     } catch (err) {
-                        this.kurirFormError = 'Gagal terhubung ke server';
+                        console.error(err);
+                        this.kurirFormError =
+                            'Gagal terhubung ke server';
                     }
+
                     this.kurirSaving = false;
                 },
+
+
                 async deleteKurir(username) {
                     if (!confirm('Hapus pegawai ini?')) return;
-                    this.cloudSheets.sdm = this.cloudSheets.sdm.filter(r => r[0] !== username);
-                    try { await this.post({ action: 'deletePegawai', username }); } catch (err) { console.error(err); }
-                },
-                async resetPasswordAdmin(username) {
-                    const newPass = prompt('Masukkan password baru untuk ' + username + ':');
-                    if (!newPass) return;
+
+                    this.cloudSheets.sdm =
+                        this.cloudSheets.sdm.filter(
+                            r => r[0] !== username
+                        );
+
                     try {
-                        const result = await this.post({ action: 'resetPassword', username, newPassword: newPass, byAdmin: true });
-                        if (result.status === 'success') {
-                            let row = this.cloudSheets.sdm.find(r => r[0] === username);
-                            if (row) row[2] = newPass;
-                            alert('Password berhasil direset.');
-                        } else {
-                            alert(result.message || 'Gagal reset password');
-                        }
-                    } catch (err) { alert('Gagal terhubung ke server'); }
-                },
-
-                // ---------- MASTER: JABATAN & AREA ----------
-                async saveJabatan() {
-                    if (!this.jabatanForm.name) return;
-                    const nama = this.jabatanForm.name.trim();
-                    if (!this.cloudSheets.hc || this.cloudSheets.hc.length === 0) this.cloudSheets.hc = [['Tipe', 'Nama']];
-                    this.cloudSheets.hc.push(['jabatan', nama]);
-                    this.jabatanForm.name = '';
-                    try { await this.post({ action: 'addMaster', tipe: 'jabatan', nama }); } catch (err) { console.error(err); }
-                },
-                async deleteJabatan(nama) {
-                    this.cloudSheets.hc = this.cloudSheets.hc.filter(r => !(r[0] === 'jabatan' && r[1] === nama));
-                    try { await this.post({ action: 'deleteMaster', tipe: 'jabatan', nama }); } catch (err) { console.error(err); }
-                },
-                async saveEstafetArea() {
-                    if (!this.estafetAreaForm.name) return;
-                    const nama = this.estafetAreaForm.name.trim();
-                    if (!this.cloudSheets.hc || this.cloudSheets.hc.length === 0) this.cloudSheets.hc = [['Tipe', 'Nama']];
-                    this.cloudSheets.hc.push(['area', nama]);
-                    this.estafetAreaForm.name = '';
-                    try { await this.post({ action: 'addMaster', tipe: 'area', nama }); } catch (err) { console.error(err); }
-                },
-                async deleteEstafetArea(nama) {
-                    this.cloudSheets.hc = this.cloudSheets.hc.filter(r => !(r[0] === 'area' && r[1] === nama));
-                    try { await this.post({ action: 'deleteMaster', tipe: 'area', nama }); } catch (err) { console.error(err); }
-                },
-
-                // ---------- STATUS (ADMIN APPROVE/REJECT, OPTIMISTIC) ----------
-                async updateStatus(sheetName, rowIndex, newStatus, newNominal = null) {
-                    let rows = this.cloudSheets[sheetName];
-                    if (rows) {
-                        let r = rows[rowIndex - 1];
-                        if (r) {
-                            if (sheetName === 'parkir') {
-                                if (newNominal !== null) r[5] = newNominal;
-                                if (newStatus) r[6] = newStatus;
-                            } else {
-                                let col = (sheetName === 'absen') ? 8 : (sheetName === 'gedung' ? 8 : (sheetName === 'estafet' ? 7 : (sheetName === 'jarak' ? 9 : 6)));
-                                if (newStatus) r[col] = newStatus;
-                            }
-                        }
+                        await this.post({
+                            action: 'deletePegawai',
+                            username
+                        });
+                    } catch (err) {
+                        console.error(err);
                     }
-                    try { await this.post({ action: 'updateStatus', sheetName, rowIndex, status: newStatus, nominal: newNominal }); } catch (err) { console.error(err); }
                 },
 
-                // ---------- SUBMIT KURIR (OPTIMISTIC LOCAL UPDATE) ----------
-                async kirimAbsen() {
-                    if (!this.absenForm.capturedImage) return;
-                    this.absenState = 'sending';
+
+                async resetPasswordAdmin(username) {
+                    const newPass = prompt(
+                        'Masukkan password baru untuk ' + username + ':'
+                    );
+
+                    if (!newPass) return;
+
                     try {
-                        const result = await this.post({ sheetType: 'absen', name: this.currentUser.name, kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan, photoBase64: this.absenForm.capturedImage });
+                        const result = await this.post({
+                            action: 'resetPassword',
+                            username,
+                            newPassword: newPass,
+                            byAdmin: true
+                        });
+
                         if (result.status === 'success') {
-                            if (!this.myData.absen || this.myData.absen.length === 0) this.myData.absen = [['Tanggal', 'Nama', 'Kontrak', 'Jabatan', 'JamDatang', 'FotoDatang', 'JamPulang', 'FotoPulang', 'Status']];
-                            let today = result.row[0];
-                            let idx = this.myData.absen.findIndex((r, i) => i > 0 && r[0] === today && r[1] === this.currentUser.name);
-                            if (idx > 0) this.myData.absen[idx] = result.row; else this.myData.absen.push(result.row);
+                            let row =
+                                this.cloudSheets.sdm.find(
+                                    r => r[0] === username
+                                );
+
+                            if (row) {
+                                row[2] = newPass;
+                            }
+
+                            alert('Password berhasil direset.');
+
                         } else {
-                            alert(result.message || 'Gagal mengirim absensi');
+                            alert(
+                                result.message ||
+                                'Gagal reset password'
+                            );
                         }
+
                     } catch (err) {
                         alert('Gagal terhubung ke server');
                     }
-                    this.absenForm.capturedImage = null;
-                    this.absenState = 'idle';
                 },
-                async submitParkir() {
-                    this.parkirSubmitting = true;
+
+
+                /* ---------- MASTER: JABATAN & AREA ---------- */
+
+                async saveJabatan() {
+                    if (!this.jabatanForm.name) return;
+
+                    const nama =
+                        this.jabatanForm.name.trim();
+
+                    if (
+                        !this.cloudSheets.hc ||
+                        this.cloudSheets.hc.length === 0
+                    ) {
+                        this.cloudSheets.hc = [
+                            ['Tipe', 'Nama']
+                        ];
+                    }
+
+                    this.cloudSheets.hc.push([
+                        'jabatan',
+                        nama
+                    ]);
+
+                    this.jabatanForm.name = '';
+
                     try {
-                        const result = await this.post({ sheetType: 'parkir', tanggal: this.parkirForm.tanggal, name: this.currentUser.name, kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan, nominal: this.parkirForm.nominal, photoBase64: this.parkirForm.photo });
+                        await this.post({
+                            action: 'addMaster',
+                            tipe: 'jabatan',
+                            nama
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+
+
+                async deleteJabatan(nama) {
+                    this.cloudSheets.hc =
+                        this.cloudSheets.hc.filter(
+                            r => !(r[0] === 'jabatan' && r[1] === nama)
+                        );
+
+                    try {
+                        await this.post({
+                            action: 'deleteMaster',
+                            tipe: 'jabatan',
+                            nama
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+
+
+                async saveEstafetArea() {
+                    if (!this.estafetAreaForm.name) return;
+
+                    const nama =
+                        this.estafetAreaForm.name.trim();
+
+                    if (
+                        !this.cloudSheets.hc ||
+                        this.cloudSheets.hc.length === 0
+                    ) {
+                        this.cloudSheets.hc = [
+                            ['Tipe', 'Nama']
+                        ];
+                    }
+
+                    this.cloudSheets.hc.push([
+                        'area',
+                        nama
+                    ]);
+
+                    this.estafetAreaForm.name = '';
+
+                    try {
+                        await this.post({
+                            action: 'addMaster',
+                            tipe: 'area',
+                            nama
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+
+
+                async deleteEstafetArea(nama) {
+                    this.cloudSheets.hc =
+                        this.cloudSheets.hc.filter(
+                            r => !(r[0] === 'area' && r[1] === nama)
+                        );
+
+                    try {
+                        await this.post({
+                            action: 'deleteMaster',
+                            tipe: 'area',
+                            nama
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+
+
+                /* ---------- STATUS ADMIN ---------- */
+
+                async updateStatus(
+                    sheetName,
+                    rowIndex,
+                    newStatus,
+                    newNominal = null
+                ) {
+                    let rows =
+                        this.cloudSheets[sheetName];
+
+                    if (rows) {
+                        let r =
+                            rows[rowIndex - 1];
+
+                        if (r) {
+
+                            if (sheetName === 'parkir') {
+
+                                if (newNominal !== null) {
+                                    r[5] = newNominal;
+                                }
+
+                                if (newStatus) {
+                                    r[6] = newStatus;
+                                }
+
+                            } else {
+
+                                let col =
+                                    sheetName === 'absen' ? 8 :
+                                    sheetName === 'gedung' ? 8 :
+                                    sheetName === 'estafet' ? 7 :
+                                    sheetName === 'jarak' ? 9 :
+                                    6;
+
+                                if (newStatus) {
+                                    r[col] = newStatus;
+                                }
+                            }
+                        }
+                    }
+
+                    try {
+                        await this.post({
+                            action: 'updateStatus',
+                            sheetName,
+                            rowIndex,
+                            status: newStatus,
+                            nominal: newNominal
+                        });
+
+                        // Sync kembali supaya tampilan benar-benar mengikuti Spreadsheet
+                        await this.fetchAdminData();
+
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+
+
+                /* ---------- SUBMIT ABSEN ---------- */
+
+                async kirimAbsen() {
+
+                    if (!this.absenForm.capturedImage) {
+                        return;
+                    }
+
+                    this.absenState = 'sending';
+
+                    try {
+
+                        const result = await this.post({
+                            sheetType: 'absen',
+                            name: this.currentUser.name,
+                            kontrak: this.currentUser.kontrak,
+                            jabatan: this.currentUser.jabatan,
+                            photoBase64: this.absenForm.capturedImage
+                        });
+
                         if (result.status === 'success') {
-                            if (!this.myData.parkir || this.myData.parkir.length === 0) this.myData.parkir = [['Tanggal', 'Nama', 'Kontrak', 'Jabatan', 'Foto', 'Nominal', 'Status']];
-                            this.myData.parkir.push(result.row);
-                            this.parkirForm = { tanggal: '', nominal: 2000, photo: null };
-                        } else { alert(result.message || 'Gagal mengirim data'); }
-                    } catch (err) { alert('Gagal terhubung ke server'); }
+
+                            // Jangan optimistic update.
+                            // Ambil data langsung dari Spreadsheet.
+                            await this.fetchMyData();
+
+                            this.absenForm.capturedImage = null;
+                            this.absenState = 'idle';
+
+                            if (result.type === 'datang') {
+                                alert('✅ Absen datang berhasil dicatat.');
+                            }
+
+                            if (result.type === 'pulang') {
+                                alert('✅ Absen pulang berhasil dicatat.');
+                            }
+
+                        } else {
+
+                            alert(
+                                result.message ||
+                                'Gagal mengirim absensi'
+                            );
+
+                            this.absenForm.capturedImage = null;
+                            this.absenState = 'idle';
+                        }
+
+                    } catch (err) {
+
+                        console.error(err);
+
+                        alert(
+                            'Gagal terhubung ke server.'
+                        );
+
+                        this.absenForm.capturedImage = null;
+                        this.absenState = 'idle';
+                    }
+                },
+
+
+                /* ---------- SUBMIT PARKIR ---------- */
+
+                async submitParkir() {
+
+                    this.parkirSubmitting = true;
+
+                    try {
+
+                        const result = await this.post({
+                            sheetType: 'parkir',
+                            tanggal: this.parkirForm.tanggal,
+                            name: this.currentUser.name,
+                            kontrak: this.currentUser.kontrak,
+                            jabatan: this.currentUser.jabatan,
+
+                            // Tetap dikirim, tetapi backend mengabaikannya.
+                            nominal: 2000,
+
+                            photoBase64: this.parkirForm.photo
+                        });
+
+                        if (result.status === 'success') {
+
+                            await this.fetchMyData();
+
+                            this.parkirForm = {
+                                tanggal: '',
+                                nominal: 2000,
+                                photo: null
+                            };
+
+                        } else {
+                            alert(
+                                result.message ||
+                                'Gagal mengirim data'
+                            );
+                        }
+
+                    } catch (err) {
+
+                        console.error(err);
+                        alert(
+                            'Gagal terhubung ke server'
+                        );
+
+                    }
+
                     this.parkirSubmitting = false;
                 },
+
+
+                /* ---------- SUBMIT GEDUNG ---------- */
+
                 async submitGedung() {
+
                     this.gedungSubmitting = true;
+
                     try {
-                        const result = await this.post({ sheetType: 'gedung', tanggal: this.gedungForm.tanggal, name: this.currentUser.name, kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan, gedungLantai: this.gedungForm.gedungLantai, namaCust: this.gedungForm.namaCust, sesi: this.gedungForm.sesi, photoBase64: this.gedungForm.photo });
+
+                        const result = await this.post({
+                            sheetType: 'gedung',
+                            tanggal: this.gedungForm.tanggal,
+                            name: this.currentUser.name,
+                            kontrak: this.currentUser.kontrak,
+                            jabatan: this.currentUser.jabatan,
+                            gedungLantai: this.gedungForm.gedungLantai,
+                            namaCust: this.gedungForm.namaCust,
+                            sesi: this.gedungForm.sesi,
+                            photoBase64: this.gedungForm.photo
+                        });
+
                         if (result.status === 'success') {
-                            if (!this.myData.gedung || this.myData.gedung.length === 0) this.myData.gedung = [['Tanggal', 'Nama', 'Kontrak', 'Jabatan', 'GedungLantai', 'Customer', 'Sesi', 'Foto', 'Status']];
-                            this.myData.gedung.push(result.row);
-                            this.gedungForm = { tanggal: '', gedungLantai: '', namaCust: '', sesi: 'Lunch', photo: null };
-                        } else { alert(result.message || 'Gagal mengirim data'); }
-                    } catch (err) { alert('Gagal terhubung ke server'); }
+
+                            await this.fetchMyData();
+
+                            this.gedungForm = {
+                                tanggal: '',
+                                gedungLantai: '',
+                                namaCust: '',
+                                sesi: 'Lunch',
+                                photo: null
+                            };
+
+                        } else {
+                            alert(
+                                result.message ||
+                                'Gagal mengirim data'
+                            );
+                        }
+
+                    } catch (err) {
+                        alert(
+                            'Gagal terhubung ke server'
+                        );
+                    }
+
                     this.gedungSubmitting = false;
                 },
+
+
+                /* ---------- SUBMIT ESTAFET ---------- */
+
                 async submitEstafet() {
+
                     this.estafetSubmitting = true;
+
                     try {
-                        const result = await this.post({ sheetType: 'estafet', tanggal: this.estafetForm.tanggal, name: this.currentUser.name, kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan, estafetArea: this.estafetForm.estafetArea, alasan: this.estafetForm.alasan, photoBase64: this.estafetForm.photo });
+
+                        const result = await this.post({
+                            sheetType: 'estafet',
+                            tanggal: this.estafetForm.tanggal,
+                            name: this.currentUser.name,
+                            kontrak: this.currentUser.kontrak,
+                            jabatan: this.currentUser.jabatan,
+                            estafetArea: this.estafetForm.estafetArea,
+                            alasan: this.estafetForm.alasan,
+                            photoBase64: this.estafetForm.photo
+                        });
+
                         if (result.status === 'success') {
-                            if (!this.myData.estafet || this.myData.estafet.length === 0) this.myData.estafet = [['Tanggal', 'Nama', 'Kontrak', 'Jabatan', 'Area', 'Alasan', 'Foto', 'Status']];
-                            this.myData.estafet.push(result.row);
-                            this.estafetForm = { tanggal: '', estafetArea: '', alasan: '', photo: null };
-                        } else { alert(result.message || 'Gagal mengirim data'); }
-                    } catch (err) { alert('Gagal terhubung ke server'); }
+
+                            await this.fetchMyData();
+
+                            this.estafetForm = {
+                                tanggal: '',
+                                estafetArea: '',
+                                alasan: '',
+                                photo: null
+                            };
+
+                        } else {
+                            alert(
+                                result.message ||
+                                'Gagal mengirim data'
+                            );
+                        }
+
+                    } catch (err) {
+                        alert(
+                            'Gagal terhubung ke server'
+                        );
+                    }
+
                     this.estafetSubmitting = false;
                 },
+
+
+                /* ---------- SUBMIT JARAK ---------- */
+
                 async submitJarak() {
+
                     this.jarakSubmitting = true;
+
                     try {
-                        const result = await this.post({ sheetType: 'jarak', tanggal: this.jarakForm.tanggal, name: this.currentUser.name, kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan, sesi: this.jarakForm.sesi, custTerjauh: this.jarakForm.custTerjauh, jarak: this.jarakForm.jarak, photoBoxBase64: this.jarakForm.photoBox, photoBuktiBase64: this.jarakForm.photoBukti });
+
+                        const result = await this.post({
+                            sheetType: 'jarak',
+                            tanggal: this.jarakForm.tanggal,
+                            name: this.currentUser.name,
+                            kontrak: this.currentUser.kontrak,
+                            jabatan: this.currentUser.jabatan,
+                            sesi: this.jarakForm.sesi,
+                            custTerjauh: this.jarakForm.custTerjauh,
+                            jarak: this.jarakForm.jarak,
+                            photoBoxBase64: this.jarakForm.photoBox,
+                            photoBuktiBase64: this.jarakForm.photoBukti
+                        });
+
                         if (result.status === 'success') {
-                            if (!this.myData.jarak || this.myData.jarak.length === 0) this.myData.jarak = [['Tanggal', 'Nama', 'Kontrak', 'Jabatan', 'Sesi', 'CustTerjauh', 'Jarak', 'FotoBox', 'FotoBukti', 'Status']];
-                            this.myData.jarak.push(result.row);
-                            this.jarakForm = { tanggal: '', sesi: 'Lunch', custTerjauh: '', jarak: '', photoBox: '', photoBukti: '' };
-                        } else { alert(result.message || 'Gagal mengirim data'); }
-                    } catch (err) { alert('Gagal terhubung ke server'); }
+
+                            await this.fetchMyData();
+
+                            this.jarakForm = {
+                                tanggal: '',
+                                sesi: 'Lunch',
+                                custTerjauh: '',
+                                jarak: '',
+                                photoBox: '',
+                                photoBukti: ''
+                            };
+
+                        } else {
+                            alert(
+                                result.message ||
+                                'Gagal mengirim data'
+                            );
+                        }
+
+                    } catch (err) {
+                        alert(
+                            'Gagal terhubung ke server'
+                        );
+                    }
+
                     this.jarakSubmitting = false;
                 },
+
+
+                /* ---------- SUBMIT PICKUP ---------- */
+
                 async submitPickup() {
+
                     this.pickupSubmitting = true;
+
                     try {
-                        const result = await this.post({ sheetType: 'ambil barang', tanggal: this.pickupForm.tanggal, name: this.currentUser.name, kontrak: this.currentUser.kontrak, jabatan: this.currentUser.jabatan, deskripsi: this.pickupForm.deskripsi, photoBase64: this.pickupForm.photo });
+
+                        const result = await this.post({
+                            sheetType: 'ambil barang',
+                            tanggal: this.pickupForm.tanggal,
+                            name: this.currentUser.name,
+                            kontrak: this.currentUser.kontrak,
+                            jabatan: this.currentUser.jabatan,
+                            deskripsi: this.pickupForm.deskripsi,
+                            photoBase64: this.pickupForm.photo
+                        });
+
                         if (result.status === 'success') {
-                            if (!this.myData['ambil barang'] || this.myData['ambil barang'].length === 0) this.myData['ambil barang'] = [['Tanggal', 'Nama', 'Kontrak', 'Jabatan', 'Deskripsi', 'Foto', 'Status']];
-                            this.myData['ambil barang'].push(result.row);
-                            this.pickupForm = { tanggal: '', deskripsi: '', photo: null };
-                        } else { alert(result.message || 'Gagal mengirim data'); }
-                    } catch (err) { alert('Gagal terhubung ke server'); }
+
+                            await this.fetchMyData();
+
+                            this.pickupForm = {
+                                tanggal: '',
+                                deskripsi: '',
+                                photo: null
+                            };
+
+                        } else {
+                            alert(
+                                result.message ||
+                                'Gagal mengirim data'
+                            );
+                        }
+
+                    } catch (err) {
+                        alert(
+                            'Gagal terhubung ke server'
+                        );
+                    }
+
                     this.pickupSubmitting = false;
                 },
 
-                // ---------- GANTI PASSWORD (KURIR) ----------
+
+                /* ---------- GANTI PASSWORD ---------- */
+
                 async gantiPassword() {
+
                     this.gantiPasswordMsg = '';
-                    if (this.gantiPasswordForm.baru !== this.gantiPasswordForm.konfirmasi) {
-                        this.gantiPasswordMsg = 'Konfirmasi password baru tidak sama!';
+
+                    if (
+                        this.gantiPasswordForm.baru !==
+                        this.gantiPasswordForm.konfirmasi
+                    ) {
+                        this.gantiPasswordMsg =
+                            'Konfirmasi password baru tidak sama!';
                         return;
                     }
-                    if (!this.gantiPasswordForm.baru || this.gantiPasswordForm.baru.length < 4) {
-                        this.gantiPasswordMsg = 'Password baru minimal 4 karakter!';
+
+                    if (
+                        !this.gantiPasswordForm.baru ||
+                        this.gantiPasswordForm.baru.length < 4
+                    ) {
+                        this.gantiPasswordMsg =
+                            'Password baru minimal 4 karakter!';
                         return;
                     }
+
                     this.gantiPasswordSubmitting = true;
+
                     try {
-                        const result = await this.post({ action: 'resetPassword', username: this.currentUser.username, oldPassword: this.gantiPasswordForm.lama, newPassword: this.gantiPasswordForm.baru, byAdmin: false });
+
+                        const result = await this.post({
+                            action: 'resetPassword',
+                            username: this.currentUser.username,
+                            oldPassword: this.gantiPasswordForm.lama,
+                            newPassword: this.gantiPasswordForm.baru,
+                            byAdmin: false
+                        });
+
                         if (result.status === 'success') {
-                            this.gantiPasswordMsg = '✅ Password berhasil diubah!';
-                            this.gantiPasswordForm = { lama: '', baru: '', konfirmasi: '' };
+
+                            this.gantiPasswordMsg =
+                                '✅ Password berhasil diubah!';
+
+                            this.gantiPasswordForm = {
+                                lama: '',
+                                baru: '',
+                                konfirmasi: ''
+                            };
+
                         } else {
-                            this.gantiPasswordMsg = result.message || 'Gagal mengubah password';
+
+                            this.gantiPasswordMsg =
+                                result.message ||
+                                'Gagal mengubah password';
                         }
+
                     } catch (err) {
-                        this.gantiPasswordMsg = 'Gagal terhubung ke server';
+
+                        this.gantiPasswordMsg =
+                            'Gagal terhubung ke server';
                     }
+
                     this.gantiPasswordSubmitting = false;
                 }
-            }
+            };
         }
     </script>
+
 </body>
 </html>
