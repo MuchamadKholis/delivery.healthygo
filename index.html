@@ -112,7 +112,7 @@
                         <div class="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Filter Tanggal</label>
-                                <input type="text" x-model="filters.tanggal" placeholder="dd/MM/yyyy" class="w-full border rounded px-2 py-1">
+                                <input type="text" x-model="filters.tanggal" placeholder="yyyy-MM-dd" class="w-full border rounded px-2 py-1">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Cari Nama</label>
@@ -373,6 +373,7 @@
                                             <td class="p-3 font-medium" x-text="row.data[1]"></td>
                                             <td class="p-3" x-text="row.data[4]"></td>
                                             <td class="p-3"><template x-if="row.data[5] && row.data[5] !== '-'"><a :href="row.data[5]" target="_blank" class="text-blue-600 underline text-xs">Lihat</a></template></td>
+                                            <!-- Status Ambil Barang ada di kolom ke-7 (index 6) -->
                                             <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold" :class="row.data[6] === 'Approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'" x-text="row.data[6]"></span></td>
                                             <td class="p-3 space-x-1">
                                                 <button @click="updateStatus('ambil barang', row.index, 'Approved')" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Approve</button>
@@ -474,7 +475,7 @@
                 loginError: '',
                 isLoading: false,
                 autoRefreshInterval: null,
-                gasUrl: 'https://script.google.com/macros/s/AKfycby16c3G39W5itSTX__6GBv0R6hSKq8RdOIlZhiy8MVuCZBrQhjNNk7jo-GpbJuldh8gOw/exec',
+                gasUrl: 'https://script.google.com/macros/s/AKfycbwjyGnYAPzNLGkLGDnifO6tzysOulCRQai-qndJwerCGWP9f4mNNPKeYpy-m4FMCyPX3Q/exec',
 
                 role: '', 
                 activeTab: 'admin-kurir',
@@ -535,31 +536,25 @@
                             body: JSON.stringify({ sheetType: sheetType, ...payloadData })
                         });
                         this.isLoading = false;
-                        alert('Berhasil dikirim ke Google Spreadsheet & Drive!');
                         this.stopCamera();
                         this.fetchCloudData();
                         return true;
                     } catch (error) {
                         this.isLoading = false;
-                        alert("Gagal mengirim ke server.");
                         return false;
                     }
                 },
 
                 async updateStatus(sheetName, rowIndex, newStatus, newNominal = null) {
-                    this.isLoading = true;
                     try {
                         await fetch(this.gasUrl, {
                             method: 'POST',
                             mode: 'no-cors',
                             body: JSON.stringify({ action: 'updateStatus', sheetName: sheetName, rowIndex: rowIndex, status: newStatus, nominal: newNominal })
                         });
-                        this.isLoading = false;
-                        alert('Berhasil diperbarui!');
                         this.fetchCloudData();
                     } catch (err) {
-                        this.isLoading = false;
-                        alert('Gagal memperbarui status.');
+                        console.error('Gagal memperbarui status:', err);
                     }
                 },
 
@@ -719,12 +714,11 @@
                     this.kurirList.push({ ...this.kurirForm });
                     localStorage.setItem('kurirList', JSON.stringify(this.kurirList));
                     this.kurirForm = { name: '', username: '', password: '', kontrak: 'Full Time', jabatan: this.jabatanList[0] };
-                    alert('Pegawai disimpan!');
                 },
                 deleteKurir(i) { this.kurirList.splice(i, 1); localStorage.setItem('kurirList', JSON.stringify(this.kurirList)); },
 
                 async submitAbsen() {
-                    if (!this.absenForm.capturedImage) { alert('Ambil foto kamera!'); return; }
+                    if (!this.absenForm.capturedImage) { return; }
                     let tglStr = new Date().toISOString().split('T')[0];
                     await this.sendToGoogleSheets('absen', {
                         tanggal: tglStr, name: this.currentUser.name, kontrak: this.currentUser.kontrak,
